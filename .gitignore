@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+artifacts/*.pkl
+outputs/*.png
+outputs/*.csv
+data/aug_train.csv
+data/aug_test.csv
+.DS_Store

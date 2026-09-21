@@ -1,0 +1,30 @@
+name: Project checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  syntax-and-imports:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Compile Python sources
+        run: python -m compileall src
+      - name: Validate notebook JSON
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("notebooks/GroupNo_HRJobChangePrediction.ipynb")
+          if p.exists():
+              json.loads(p.read_text(encoding="utf-8"))
+              print("Notebook JSON valid")
+          else:
+              print("Notebook will be added separately")
+          PY
