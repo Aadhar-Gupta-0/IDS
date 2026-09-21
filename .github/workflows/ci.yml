@@ -9,22 +9,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+
       - name: Install dependencies
         run: pip install -r requirements.txt
+
       - name: Compile Python sources
         run: python -m compileall src
-      - name: Validate notebook JSON
+
+      - name: Validate notebook JSON and Python cells
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+
           p = Path("notebooks/GroupNo_HRJobChangePrediction.ipynb")
-          if p.exists():
-              json.loads(p.read_text(encoding="utf-8"))
-              print("Notebook JSON valid")
-          else:
-              print("Notebook will be added separately")
+          nb = json.loads(p.read_text(encoding="utf-8"))
+
+          code_cells = [
+              "".join(cell.get("source", []))
+              for cell in nb["cells"]
+              if cell.get("cell_type") == "code"
+          ]
+
+          for i, source in enumerate(code_cells, start=1):
+              compile(source, f"{p}:code-cell-{i}", "exec")
+
+          print(f"Notebook JSON valid; {len(code_cells)} Python code cells compile.")
           PY
