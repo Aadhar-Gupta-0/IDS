@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Group 9 Viva Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root {
+  --bg: #f6f8f7;
+  --surface: #ffffff;
+  --ink: #16201e;
+  --muted: #5b6663;
+  --line: #dde3e0;
+  --teal: #2e6b5e;
+  --teal-soft: #e3efeb;
+  --accent: #c8461f;
+  --accent-soft: #fbe9e3;
+  --focus: #2e6b5e;
+  --sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --cond: "IBM Plex Sans Condensed", "Arial Narrow", "IBM Plex Sans", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0f1716;
+    --surface: #16211f;
+    --ink: #e7eeeb;
+    --muted: #9aa8a4;
+    --line: #2a3835;
+    --teal: #74b6a5;
+    --teal-soft: #1c302b;
+    --accent: #f0825e;
+    --accent-soft: #3a211a;
+    --focus: #74b6a5;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1716;
+  --surface: #16211f;
+  --ink: #e7eeeb;
+  --muted: #9aa8a4;
+  --line: #2a3835;
+  --teal: #74b6a5;
+  --teal-soft: #1c302b;
+  --accent: #f0825e;
+  --accent-soft: #3a211a;
+  --focus: #74b6a5;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.55;
+  padding-inline: 16px;
+  padding-block: 0 64px;
+}
+.wrap { max-width: 820px; margin: 0 auto; }
+header { padding-block: 40px 20px; display: grid; gap: 10px; }
+.eyebrow {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--muted);
+}
+h1 {
+  font-family: var(--cond); font-weight: 600; font-size: clamp(34px, 6vw, 52px);
+  line-height: 1.05; margin: 0; text-wrap: balance; letter-spacing: -0.01em;
+}
+.lede { margin: 0; color: var(--muted); max-width: 62ch; }
+h2 {
+  font-family: var(--cond); font-weight: 600; font-size: 22px; margin: 0;
+  text-wrap: balance;
+}
+section { margin-top: 28px; display: grid; gap: 14px; }
+
+/* numbers to memorise */
+.numbers {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 18px 20px; display: grid; gap: 12px;
+}
+.numbers p { margin: 0; color: var(--muted); font-size: 14px; }
+.num-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px 20px;
+}
+.num { display: grid; gap: 2px; }
+.num b {
+  font-family: var(--mono); font-weight: 500; font-size: 20px;
+  font-variant-numeric: tabular-nums; color: var(--ink);
+}
+.num span { font-size: 13px; color: var(--muted); line-height: 1.35; }
+
+/* controls */
+.controls {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); padding-block: 12px; display: grid; gap: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  font: 500 13px/1 var(--sans); padding: 8px 12px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink);
+  cursor: pointer; display: inline-flex; gap: 6px; align-items: center;
+}
+.chip .count { font-family: var(--mono); color: var(--muted); font-size: 12px; }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.chip[aria-pressed="true"] .count { color: var(--bg); opacity: 0.75; }
+.chip.curve[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.btn {
+  font: 500 13px/1 var(--sans); padding: 9px 12px; border-radius: 6px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer;
+}
+.btn:hover, .chip:hover { border-color: var(--muted); }
+.status { font-size: 13px; color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+button:focus-visible, summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* questions */
+.group-title {
+  font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin: 18px 0 0;
+}
+.list { display: grid; gap: 10px; }
+details.q {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  scroll-margin-top: 140px;
+}
+details.q[open] { border-color: var(--muted); }
+details.q.flash { box-shadow: 0 0 0 3px var(--teal-soft); }
+summary {
+  list-style: none; cursor: pointer; padding: 14px 18px; display: grid;
+  grid-template-columns: auto 1fr auto; gap: 12px; align-items: baseline;
+}
+summary::-webkit-details-marker { display: none; }
+.qn {
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+  font-variant-numeric: tabular-nums; min-width: 2.2em;
+}
+.qt { font-weight: 500; }
+.toggle { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+details[open] .toggle .show, details:not([open]) .toggle .hide { display: none; }
+.tag {
+  display: inline-block; font: 500 11px/1 var(--mono); letter-spacing: 0.04em;
+  padding: 4px 6px; border-radius: 4px; margin-left: 8px; vertical-align: 2px;
+  background: var(--accent-soft); color: var(--accent); text-transform: uppercase;
+}
+.answer {
+  padding: 0 18px 16px calc(18px + 2.2em + 12px); display: grid; gap: 10px;
+  color: var(--ink); max-width: 72ch;
+}
+.answer p { margin: 0; }
+.answer .say { color: var(--muted); font-size: 14px; }
+.answer .say b { color: var(--teal); font-weight: 600; }
+code, .m { font-family: var(--mono); font-size: 0.9em; }
+code { background: var(--teal-soft); padding: 1px 5px; border-radius: 4px; }
+.empty { color: var(--muted); padding: 20px 0; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; display: grid; gap: 6px; }
+
+@media (max-width: 520px) {
+  summary { grid-template-columns: auto 1fr; }
+  .toggle { grid-column: 2; }
+  .answer { padding-left: 18px; }
+  .status { margin-left: 0; width: 100%; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  details.q { transition: border-color 150ms ease, box-shadow 300ms ease; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Group 9 · HR Analytics: Job Change of Data Scientists</div>
+    <h1>Questions the teacher can ask, with answers</h1>
+    <p class="lede">Every answer here was checked against the notebook and the data. Practise out loud: read the question, answer it yourself, then open the card. Cards marked <span class="tag" style="margin-left:0">curveball</span> are the ones most groups don't prepare for.</p>
+  </header>
+
+  <section aria-labelledby="nums-h">
+    <div class="numbers">
+      <h2 id="nums-h">Numbers every member should know without looking</h2>
+      <p>Test figures are from the 20% hold-out set (3,832 candidates) at threshold 0.5.</p>
+      <div class="num-grid">
+        <div class="num"><b>19,158</b><span>labelled candidates, 14 columns</span></div>
+        <div class="num"><b>24.9%</b><span>looking to move (4,777). Ratio about 3 to 1</span></div>
+        <div class="num"><b>2,129</b><span>unlabelled candidates in aug_test.csv</span></div>
+        <div class="num"><b>12 to 152</b><span>input features before and after encoding</span></div>
+        <div class="num"><b>32% / 31%</b><span>missing in company_type / company_size</span></div>
+        <div class="num"><b>53%</b><span>of rows have at least one missing value</span></div>
+        <div class="num"><b>0.789 to 0.791</b><span>CV ROC-AUC of logistic regression, before and after tuning</span></div>
+        <div class="num"><b>C = 0.1, L2</b><span>best tuned settings</span></div>
+        <div class="num"><b>0.808</b><span>test ROC-AUC (0.797 on the training set)</span></div>
+        <div class="num"><b>78% / 52%</b><span>recall / precision on the test set</span></div>
+        <div class="num"><b>0.63</b><span>test F1. Accuracy 76.9% vs 75.1% for the dummy</span></div>
+        <div class="num"><b>748 · 680 · 207 · 2,197</b><span>TP · FP · FN · TN</span></div>
+        <div class="num"><b>0.784 to 0.809</b><span>test ROC-AUC across 5 random splits (mean 0.795)</span></div>
+        <div class="num"><b>0.10</b><span>ROC-AUC drop when city_development_index is shuffled (top feature)</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="qs-h">
+    <h2 id="qs-h" class="sr-only" style="position:absolute;left:-9999px">Questions</h2>
+    <div class="controls">
+      <div class="chips" role="group" aria-label="Filter by topic" id="chips"></div>
+      <div class="actions">
+        <button class="btn" id="openAll" type="button">Show all answers</button>
+        <button class="btn" id="closeAll" type="button">Hide all answers</button>
+        <button class="btn" id="random" type="button">Random question</button>
+        <span class="status" id="status" aria-live="polite"></span>
+      </div>
+    </div>
+    <div id="groups"></div>
+  </section>
+
+  <footer>
+    <div>Tip: the teacher can point at any member and ask about any part, so everyone should be able to answer the "Numbers" box and at least the first card in each topic, whoever did that part.</div>
+    <div>Sources: Group9_HRJobChange.ipynb, the Kaggle files in archive/, and extra checks run on the same data (random-seed spread, training AUC, the single-feature model, the gender and encoding variants).</div>
+  </footer>
+</div>
+
+<script>
+const TOPICS = [
+  ["business", "Business question"],
+  ["data", "Data understanding"],
+  ["prep", "Data preparation"],
+  ["model", "Modelling and tuning"],
+  ["results", "Results and interpretation"],
+  ["ethics", "Ethics, limits and next steps"],
+  ["code", "Code and tools"],
+];
+
+// c = curveball
+const Q = [
+  // ---------------- business
+  ["business", 0, "What is the business problem, in one sentence?",
+   "A company that trains data scientists wants to hire from its own trainees, and it needs to know which trainees are looking for a new job so recruiters can focus on them.",
+   "Say the decision it supports: <b>who recruiters contact first</b>."],
+  ["business", 0, "Who are the people in this dataset? Are they the company's employees?",
+   "No. They are candidates who signed up for the company's training courses. Most of them work somewhere else. <code>target = 1</code> means the candidate is looking for a job change, which makes them a likely hire for this company.",
+   "Common trap: calling it an 'employee attrition' model. It is closer to <b>recruitment targeting</b>."],
+  ["business", 0, "Why is this a classification problem and not regression?",
+   "The target has two values: looking for a job change or not. The model outputs a probability, and we turn it into a yes/no decision with a threshold."],
+  ["business", 0, "Why didn't you use accuracy to judge the models?",
+   "Only 24.9% of candidates are looking to move. A model that always says 'not looking' gets 75.1% accuracy and finds nobody. Our model's accuracy is 76.9%, which looks barely better, yet it finds 78% of job-seekers. ROC-AUC and F1 show that difference and accuracy hides it."],
+  ["business", 0, "Explain ROC-AUC = 0.81 to a manager with no statistics background.",
+   "Pick one candidate who is looking to move and one who is not, at random. About 81% of the time the model gives the job-seeker the higher score. 50% would be a coin flip and 100% would be perfect.",
+   "This is the exact definition, so it is safe to say word for word."],
+  ["business", 0, "Which is worse here: a false positive or a false negative?",
+   "A false positive costs a recruiter a call to someone who is not interested, which is cheap. A false negative is a missed hire, which is more expensive. That is why we used class weighting and accepted lower precision (52%) for higher recall (78%)."],
+  ["business", 1, "What is the business value in plain numbers?",
+   "If a recruiter calls candidates at random, about 25 in every 100 are looking to move. In the model's flagged list about 52 in every 100 are, which is 2.1 times better. It still finds 78% of all job-seekers while flagging 37% of candidates.",
+   "Lift = precision / base rate = 0.524 / 0.249 = <b>2.1</b>."],
+  ["business", 1, "If you had to present one number to HR, which would it be and why?",
+   "Recall at the chosen threshold, because it answers their question directly: out of everyone who wants to move, how many will we reach? At 0.5 that is 78%. Then give precision (52%) so they know how much recruiter time goes to people who are not interested."],
+
+  // ---------------- data
+  ["data", 0, "Describe the dataset.",
+   "19,158 labelled candidates with 14 columns: an ID, 12 features and the target. There is also a file of 2,129 unlabelled candidates. Features cover the city (code and development index), gender, relevant experience, university enrolment, education level, major, years of experience, current company size and type, years since last job change and training hours."],
+  ["data", 0, "What did you find in the data before modelling?",
+   "Three things: the target is imbalanced (25% positive); four columns have a lot of missing data (company_type 32%, company_size 31%, gender 23.5%, major 14.7%); and city_development_index is the clearest single signal. Cities below 0.60 have a 58% job-change rate, while cities at 0.90 and above have 17%."],
+  ["data", 0, "Why do you think people in less developed cities want to change jobs more?",
+   "Likely fewer good local jobs, so people train to move to better opportunities. That is our interpretation. The data only shows a correlation, not the reason.",
+   "Always add the word <b>correlation</b>. Teachers love to push on causation here."],
+  ["data", 0, "Is training_hours useful?",
+   "Almost not. Its correlation with the target is -0.02, and shuffling it lowers test ROC-AUC by only 0.0008. People who train more are not more or less likely to move."],
+  ["data", 0, "How are city and city_development_index related?",
+   "Every city has exactly one development index value, so the index is a numeric summary of the city. We kept both: the index works for rare cities, and the city columns capture effects specific to each city."],
+  ["data", 1, "Did you check for duplicates?",
+   "Yes. There are no exact duplicate rows, no duplicate IDs, and no candidate appears in both files. 49 rows (0.26%) are identical apart from the ID. Since most columns are coarse categories, two different people can have the same profile, so we kept them."],
+  ["data", 1, "The files are called aug_train and aug_test. Is the data augmented or synthetic?",
+   "The names suggest the data may have been augmented, but we could not confirm how. We treated it as real data. If some rows were generated, that would be a limitation, because duplicated patterns could make scores look better than they are. We did check that exact duplicates are not a problem.",
+   "Honest uncertainty scores better than a made-up answer."],
+  ["data", 1, "Why is 'relevent' spelled wrong?",
+   "That is how the column and its values are spelled in the source data. We kept it so the code matches the original files."],
+  ["data", 1, "What does last_new_job = 'never' mean?",
+   "The source does not say whether it means 'never changed jobs' or 'never had a job'. We mapped it to 0 (below 1 year). Its job-change rate is 30%, above average, which fits better with people early in their careers."],
+
+  // ---------------- prep
+  ["prep", 0, "Why didn't you simply drop the rows with missing values?",
+   "53% of rows have at least one missing value, so we would lose more than half the data. Worse, the rows we would lose are different: dropping them lowers the job-change rate from 24.9% to 16.6%. The model would learn from a biased sample."],
+  ["prep", 0, "Why fill missing categories with 'Unknown' instead of the most common value?",
+   "Because missing values carry information. Candidates with no company_size have a 40.6% job-change rate, compared with 17.9% when it is recorded. Filling with the mode would hide that signal. An 'Unknown' level lets the model learn it."],
+  ["prep", 0, "What is data leakage and how did you prevent it?",
+   "Leakage is when information from the evaluation data influences training, which makes scores look too good. All imputers, encoders and scalers are inside a scikit-learn Pipeline, so in cross-validation they are fitted only on the training folds, and the test set is transformed with what was learned from training data."],
+  ["prep", 0, "Explain your encoding choices.",
+   "Nominal columns with no order (city, gender, relevant experience, enrolment, major, company type) are one-hot encoded. Ordered categories (education level, company size) are ordinal encoded. Experience and last_new_job were converted to numbers because their categories are years. Numeric columns are median-filled and standardised."],
+  ["prep", 0, "Why stratified splitting?",
+   "It keeps the 24.9% job-change rate the same in the training set (15,326 rows) and test set (3,832 rows), and in every cross-validation fold. Without it, a split could by chance have noticeably more or fewer job-seekers."],
+  ["prep", 0, "Why standardise numeric columns?",
+   "Logistic regression with regularisation penalises coefficient size, so features need a comparable scale. KNN uses distances, so a column with a large range would dominate. Trees do not need scaling, but it does not hurt them."],
+  ["prep", 1, "city has 123 categories. Isn't one-hot encoding it a problem?",
+   "It creates 122 columns (one city only appears in the test split), and rare cities get noisy coefficients. Regularisation (C = 0.1) keeps those small. Better options for the next version would be target encoding or grouping rare cities. <code>handle_unknown='ignore'</code> means an unseen city does not crash the model."],
+  ["prep", 1, "You put 'Unknown' at the bottom of the ordered scale for company_size. Isn't that wrong?",
+   "Yes, it is a simplification. The model treats 'Unknown' as a company smaller than '<10', which has no real meaning, and 'Unknown' actually has the highest job-change rate (41%). We tested one-hot encoding for education and company size instead: cross-validated ROC-AUC went from 0.791 to 0.794. It is a small gain, and we would switch in the next version.",
+   "Admitting a flaw and showing you measured it is the strongest possible answer."],
+  ["prep", 1, "The ordinal columns are not scaled but the numeric ones are. Does that matter?",
+   "Education is coded 0 to 5 and company size 0 to 8, while scaled columns have a standard deviation of 1. For KNN this means company size carries more weight in the distance. For logistic regression it changes how strongly regularisation affects those two coefficients. It is a known weakness of our pipeline, and one-hot encoding those columns removes it."],
+  ["prep", 1, "Why is '<1' year of experience mapped to 0.5 and '>20' to 21?",
+   "0.5 is the middle of 'less than a year'. For '>20' we picked 21 as a conservative value just above the top category. The exact choice matters little, because the job-change rate is almost flat above 15 years."],
+  ["prep", 1, "Why didn't you use SMOTE or oversampling for the imbalance?",
+   "We used <code>class_weight='balanced'</code>, which weights job-seekers about 2.0 and others about 0.67 in the loss. It has a similar effect without creating synthetic rows. SMOTE also works poorly with many one-hot columns, because it interpolates between 0/1 values."],
+
+  // ---------------- model
+  ["model", 0, "Why these five models?",
+   "A dummy baseline to set the floor, logistic regression as a simple interpretable model, a decision tree for non-linear rules, a random forest as a strong ensemble, and KNN as a distance-based method. Together they cover the main model families taught in the course."],
+  ["model", 0, "Explain logistic regression simply.",
+   "It adds up the features, each multiplied by a weight, and passes the total through an S-shaped curve that turns it into a probability between 0 and 1. Positive weights push towards 'looking to move', negative weights push away."],
+  ["model", 0, "What do C and the penalty mean?",
+   "C controls regularisation: a smaller C means stronger regularisation, which keeps weights small and the model simpler. L2 shrinks all weights a bit. L1 can set weak ones exactly to zero. The best combination was C = 0.1 with L2."],
+  ["model", 0, "Why did you choose logistic regression over random forest?",
+   "The top three models were within 0.007 ROC-AUC of each other, about one standard deviation between folds, so there is no real performance difference. Logistic regression was slightly ahead, had the best F1, is fast, and can be explained through its weights. That matters when HR asks why someone was flagged."],
+  ["model", 0, "What is 5-fold stratified cross-validation?",
+   "The training data is split into 5 parts with the same class balance. The model trains on 4 parts and is scored on the fifth, five times, so every row is used for validation once. We report the mean and the standard deviation of the 5 scores."],
+  ["model", 0, "Why did the decision tree score only 0.62?",
+   "It was not pruned, so it grew until it memorised the training folds: it overfits. Limiting max_depth or min_samples_leaf would improve it, but we only tuned the model that won the comparison."],
+  ["model", 0, "How did you tune the model?",
+   "GridSearchCV over C (0.01, 0.1, 1, 10) and penalty (L1, L2): 8 combinations times 5 folds, 40 fits. It chose the combination with the best mean ROC-AUC and refitted it on the full training set."],
+  ["model", 1, "You only tuned the winner. Could a tuned random forest have beaten it?",
+   "Possibly. The untuned random forest was only 0.006 behind, so tuning it might close or reverse the gap. We chose not to because the models were already within one standard deviation and logistic regression is easier to explain. A fairer comparison would tune every model with the same budget. That is in our next steps."],
+  ["model", 1, "Why did you refit on ROC-AUC and not F1?",
+   "ROC-AUC measures how well the model ranks candidates across all thresholds. F1 depends on one threshold (0.5). We wanted the best ranking first and to choose the threshold separately as a business decision."],
+  ["model", 1, "What does class_weight='balanced' do to the probabilities?",
+   "It makes them too high. The average predicted probability on the test set is 0.45, while the real rate is 0.25. The ranking is still good (ROC-AUC is unaffected), but the numbers should not be read as true probabilities. To use them as real probabilities we would calibrate the model, for example with CalibratedClassifierCV.",
+   "Very few groups know this one."],
+  ["model", 1, "Why didn't you try XGBoost or LightGBM?",
+   "They were outside what we covered in the course and our time. Gradient boosting often does a little better on tabular data like this, so it is the first item in our next steps. Given how close our three models already are, we would expect a small gain, not a big one."],
+
+  // ---------------- results
+  ["results", 0, "Walk us through the confusion matrix.",
+   "Out of 3,832 test candidates: 748 job-seekers correctly flagged (true positives), 207 job-seekers missed (false negatives), 680 flagged who are not looking (false positives), and 2,197 correctly left alone (true negatives). Recall is 748 / 955 = 78%. Precision is 748 / 1,428 = 52%."],
+  ["results", 0, "Is your model overfitting?",
+   "No. Training ROC-AUC is 0.797, cross-validation 0.791 and test 0.808. All three are close. Overfitting would show as a much higher training score than test score."],
+  ["results", 0, "How would you choose the threshold?",
+   "From recruiter capacity and the cost of a miss. At 0.5 we flag 37% of candidates and catch 78% of job-seekers. At 0.7 we flag 21% and catch 51%, with precision rising from 52% to 60%. F1 is highest around 0.5 to 0.6."],
+  ["results", 0, "What drives the predictions?",
+   "Permutation importance on the test set: city_development_index is the biggest by far (shuffling it lowers ROC-AUC by 0.10), then company_type (0.05) and city (0.05). Training hours, last_new_job and gender add almost nothing."],
+  ["results", 0, "What is permutation importance and why use it instead of coefficients?",
+   "We shuffle one original column in the test set and measure how much ROC-AUC drops. It works for any model and scores a column as a whole, for example all 122 city dummies together, which is easier to explain than individual encoded columns."],
+  ["results", 1, "Your test ROC-AUC (0.808) is higher than cross-validation (0.791). Isn't that suspicious?",
+   "It is chance in how the split fell. We re-ran the whole split with 5 different random seeds: test ROC-AUC ranged from 0.784 to 0.809, mean 0.795. Seed 42 happens to be at the top of that range. So the honest expectation for new data is about 0.79 to 0.80.",
+   "Say this before they find it. It shows you understand variance."],
+  ["results", 1, "Could a simple rule do just as well, like 'flag everyone in a city below 0.7'?",
+   "No. That rule flags 25% of candidates with 51% precision and 51% recall. The model at threshold 0.7 has the same recall (51%) but flags fewer people (21%) at higher precision (60%). Used alone, city_development_index gives a ROC-AUC of 0.69, while the full model reaches 0.81."],
+  ["results", 1, "Who are the 207 job-seekers the model missed?",
+   "They look like people who stay. Their median city development index is 0.91 (for correctly caught job-seekers it is 0.62), 78% have a recorded employer (40% for caught ones), and their median experience is 10 years (5 for caught ones). The model cannot tell these movers apart with the features we have."],
+  ["results", 1, "city_development_index is a perfect function of the city columns. How can you interpret its coefficient?",
+   "You can't, fully. Because every city has one index value, the index is an exact linear combination of the city dummies. Without regularisation the coefficients would not be uniquely defined. L2 regularisation decides how the effect is split between the index and the city columns. So we read the index coefficient as the general trend and the city coefficients as each city's deviation from it, and we rely on permutation importance for the ranking.",
+   "This is the hardest question in the set."],
+  ["results", 1, "city_103 has a positive coefficient but only a 21% job-change rate, below average. Why?",
+   "Coefficients are relative to everything else in the model. city_103 has a high development index (0.92), and other cities that developed have a 13% rate. Compared with them, 21% is high, so the city coefficient is positive after accounting for the index."],
+  ["results", 1, "What is the odds interpretation of the city_development_index coefficient?",
+   "The coefficient is -0.61 per standard deviation (0.12 on the index). exp(-0.61) = 0.54, so a city about 0.12 more developed roughly halves the odds of a job change, holding the other features fixed. Given the collinearity with the city columns, treat this as a rough guide."],
+  ["results", 1, "Why is major_discipline = Unknown the strongest negative coefficient?",
+   "Candidates with no major are mostly people with no university degree: 72% of them have High School as their education and 11% Primary School. Their job-change rate is 20%, below average. So 'no major' works as a marker of lower education in this data."],
+  ["results", 1, "Why did you compute the threshold table on the test set? Doesn't that break your own rule?",
+   "Yes, if we used it to choose the threshold. We only used it to show the trade-off, and the notebook says so. In practice we would choose the threshold using cross-validated predictions on the training data, then confirm it once on the test set."],
+
+  // ---------------- ethics
+  ["ethics", 0, "Should gender be in the model at all?",
+   "We would remove it before real use. It is a protected attribute and the model barely uses it: it has the lowest permutation importance (0.0006), and retraining without it changes test ROC-AUC only from 0.8085 to 0.8082."],
+  ["ethics", 0, "Could this model be unfair to people from poorer cities?",
+   "Yes, city and its development index can stand in for socio-economic background. For outreach, meaning 'who do we call first', the risk is low. If it were used to reject people, it would be a problem. We would audit error rates by city group before any real use."],
+  ["ethics", 0, "What are the main limitations?",
+   "About half of flagged candidates are false positives; the probabilities are inflated by class weighting; the data comes from one programme at one point in time; the threshold was illustrated on test data; and a couple of encoding shortcuts (Unknown as the lowest category, unscaled ordinal codes) cost a little accuracy."],
+  ["ethics", 0, "What would you do with two more weeks?",
+   "Try gradient boosting and target encoding for city; tune all models equally; one-hot encode company size and education; drop gender and run a fairness check; calibrate the probabilities; and choose the threshold from recruiter cost using validation data."],
+  ["ethics", 1, "Is it ethical to predict whether someone wants to leave their job?",
+   "It depends on who uses it. Here the company is predicting interest among its own trainees to offer them a job, which helps the candidate. If a current employer used a similar model to watch its staff, the privacy concerns would be much bigger. Candidates should know how their training data is used."],
+  ["ethics", 1, "How would you deploy and monitor this model?",
+   "The whole pipeline is saved as one file (<code>artifacts/final_model.pkl</code>) and <code>predict.py</code> scores a new CSV. In production we would retrain on each new cohort, track recall and precision against real outcomes, and watch for drift, for example new cities or a change in the share of missing employer data."],
+  ["ethics", 1, "Does training cause people to leave their jobs?",
+   "Our data cannot answer that. It shows who is looking, not why. Training hours have almost no relationship with job change, which weakly suggests the training itself is not what pushes people to move."],
+
+  // ---------------- code
+  ["code", 0, "What does ColumnTransformer do?",
+   "It applies different preprocessing to different groups of columns and joins the results into one matrix. We used three branches: nominal (Unknown fill and one-hot), ordinal (Unknown fill and ordered codes) and numeric (median fill and scaling)."],
+  ["code", 0, "What is the difference between fit, transform and fit_transform?",
+   "fit learns parameters from data, for example the median or the list of categories. transform applies them. fit_transform does both on the same data. We only fit on training data and only transform the test data, which prevents leakage."],
+  ["code", 0, "What does handle_unknown='ignore' do?",
+   "If a category appears that was not in the training data, such as a new city, its one-hot columns are all zero instead of raising an error. The candidate is still scored using the other features."],
+  ["code", 0, "Does the notebook run from top to bottom?",
+   "Yes. It was checked with Restart and Run All from a fresh kernel, including from a folder that contains only the notebook and the CSVs. All 27 code cells run without errors."],
+  ["code", 1, "What does random_state = 42 do, and would another value change your results?",
+   "It fixes the randomness in the split, the folds and the models, so results can be reproduced. Another value gives slightly different numbers: test ROC-AUC ranged from 0.784 to 0.809 across 5 seeds. The conclusions do not change."],
+  ["code", 1, "Is saving the model with pickle safe?",
+   "Only for files you trust, because loading a pickle can run code. It also depends on library versions, so we pinned them in <code>requirements.txt</code>. For a production system, a format like ONNX or a model registry would be safer."],
+];
+
+const chipsEl = document.getElementById("chips");
+const groupsEl = document.getElementById("groups");
+const statusEl = document.getElementById("status");
+let filter = "all";
+
+function counts(key) {
+  if (key === "all") return Q.length;
+  if (key === "curve") return Q.filter(q => q[1]).length;
+  return Q.filter(q => q[0] === key).length;
+}
+
+function renderChips() {
+  const items = [["all", "All"], ...TOPICS, ["curve", "Curveballs only"]];
+  chipsEl.innerHTML = "";
+  for (const [key, label] of items) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip" + (key === "curve" ? " curve" : "");
+    b.setAttribute("aria-pressed", String(filter === key));
+    b.innerHTML = `${label} <span class="count">${counts(key)}</span>`;
+    b.addEventListener("click", () => { filter = key; renderChips(); renderList(); });
+    chipsEl.appendChild(b);
+  }
+}
+
+function renderList() {
+  groupsEl.innerHTML = "";
+  let shown = 0;
+  let n = 0;
+  for (const [key, label] of TOPICS) {
+    const items = Q.map((q, i) => ({ q, i })).filter(({ q }) => q[0] === key);
+    const visible = items.filter(({ q }) => filter === "all" || filter === key || (filter === "curve" && q[1]));
+    if (!visible.length) continue;
+    const h = document.createElement("h3");
+    h.className = "group-title";
+    h.textContent = label;
+    groupsEl.appendChild(h);
+    const list = document.createElement("div");
+    list.className = "list";
+    for (const { q, i } of visible) {
+      const [, curve, question, answer, say] = q;
+      const d = document.createElement("details");
+      d.className = "q";
+      d.id = "q" + (i + 1);
+      d.innerHTML = `
+        <summary>
+          <span class="qn">${String(i + 1).padStart(2, "0")}</span>
+          <span class="qt">${question}${curve ? '<span class="tag">curveball</span>' : ""}</span>
+          <span class="toggle"><span class="show">Show answer</span><span class="hide">Hide</span></span>
+        </summary>
+        <div class="answer"><p>${answer}</p>${say ? `<p class="say">${say}</p>` : ""}</div>`;
+      list.appendChild(d);
+      shown++;
+    }
+    groupsEl.appendChild(list);
+  }
+  if (!shown) groupsEl.innerHTML = '<p class="empty">No questions in this filter.</p>';
+  statusEl.textContent = `${shown} of ${Q.length} questions`;
+}
+
+document.getElementById("openAll").addEventListener("click", () => {
+  groupsEl.querySelectorAll("details").forEach(d => d.open = true);
+});
+document.getElementById("closeAll").addEventListener("click", () => {
+  groupsEl.querySelectorAll("details").forEach(d => d.open = false);
+});
+document.getElementById("random").addEventListener("click", () => {
+  const all = [...groupsEl.querySelectorAll("details")];
+  if (!all.length) return;
+  all.forEach(d => { d.open = false; d.classList.remove("flash"); });
+  const pick = all[Math.floor(Math.random() * all.length)];
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  pick.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  pick.classList.add("flash");
+  pick.querySelector("summary").focus({ preventScroll: true });
+  statusEl.textContent = `Random pick: question ${pick.id.slice(1)}. Answer it out loud, then open the card.`;
+});
+
+renderChips();
+renderList();
+</script>
+</body>
+</html>

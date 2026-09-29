@@ -1,0 +1,17 @@
+FIRST-RUN FIX (Windows)
+=======================
+
+If the launcher shows "NameResolutionError" for files.pythonhosted.org or pypi.org:
+1. The PC does not currently have working DNS access to PyPI.
+2. Connect to working Wi-Fi or a phone hotspot.
+3. Run RESET_ENV.bat once if the previous install partially failed.
+4. Run RUN_PRESENTATION.bat again.
+
+The updated package uses current pre-built Windows wheels, including CatBoost 1.2.10,
+so Python 3.14 is supported. After the first successful install, the presentation can run
+locally without internet.
+
+If DNS is still broken, open Command Prompt as Administrator and run:
+    ipconfig /flushdns
+    netsh winsock reset
+Then restart Windows and retry.

@@ -1,0 +1,13 @@
+# Only needed to run the project on your own computer (Google Colab already has these).
+# Tested with two setups:
+#   Python 3.14, pandas 3.0.6, numpy 2.5.3, scikit-learn 1.9.1, matplotlib 3.11.2
+#   Python 3.14, pandas 2.3.3, numpy 2.5.3, scikit-learn 1.7.2, matplotlib 3.10.9
+pandas>=2.3
+numpy>=2.0
+scikit-learn>=1.7
+matplotlib>=3.10
+seaborn>=0.13
+jupyterlab>=4.0
+
+# Enhanced deployable model
+catboost>=1.2,<2

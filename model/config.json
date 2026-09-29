@@ -1,0 +1,63 @@
+{
+  "model_type": "CatBoost seed ensemble",
+  "model_seeds": [
+    2026,
+    3407,
+    9001
+  ],
+  "split_seed": 2026,
+  "test_size": 0.2,
+  "primary_metric": "ROC-AUC",
+  "default_decision_metric": "accuracy",
+  "accuracy_threshold": 0.43000000000000005,
+  "f1_threshold": 0.314,
+  "oof_best_accuracy": 0.8014485188568445,
+  "oof_best_f1": 0.6370829033367733,
+  "oof_auc": 0.8056107051518586,
+  "final_iterations": 281,
+  "cat_features": [
+    "city",
+    "gender",
+    "relevent_experience",
+    "enrolled_university",
+    "education_level",
+    "major_discipline",
+    "experience",
+    "company_size",
+    "company_type",
+    "last_new_job"
+  ],
+  "feature_columns": [
+    "city",
+    "city_development_index",
+    "gender",
+    "relevent_experience",
+    "enrolled_university",
+    "education_level",
+    "major_discipline",
+    "experience",
+    "company_size",
+    "company_type",
+    "last_new_job",
+    "training_hours",
+    "experience_num",
+    "last_new_job_num",
+    "missing_count",
+    "has_company_info",
+    "training_hours_log1p"
+  ],
+  "params": {
+    "iterations": 281,
+    "depth": 7,
+    "learning_rate": 0.03,
+    "l2_leaf_reg": 5.0,
+    "random_strength": 0.2,
+    "bagging_temperature": 1.0,
+    "loss_function": "Logloss",
+    "eval_metric": "AUC",
+    "verbose": false,
+    "allow_writing_files": false,
+    "thread_count": 4
+  },
+  "notes": "Thresholds selected only from out-of-fold development predictions. Locked 20% test used only for final evaluation."
+}

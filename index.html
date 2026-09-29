@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0718">
+<title>Group 9 · Who Is Looking to Change Jobs? — HR Analytics</title>
+<meta name="description" content="Group 9's HR Analytics project: predicting reported job-change intent among 19,158 data-science trainees. Full analysis, models, results and viva prep — Kaggle: Job Change of Data Scientists.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="presentation.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d0718'/><circle cx='50' cy='50' r='26' fill='%23ff5d8f' stroke='%23ffcc33' stroke-width='8'/></svg>">
+</head>
+<body class="presentation-active">
+
+<div id="presentationShell" tabindex="-1" aria-label="8-minute presentation mode">
+  <button class="pres-btn secondary pres-exit" id="presExit">Explore full project ↗</button>
+  <div class="pres-stage">
+    <section class="pres-scene active" data-scene="hook">
+      <div class="pres-hook">
+        <div>
+          <p class="pres-kicker">Group 9 · HR Analytics · 8-minute presentation</p>
+          <h1 class="pres-title">19,158 DATA<br>SCIENTISTS.<br><span class="pres-highlight">WHO DO YOU CALL?</span></h1>
+          <p class="pres-question">Only about <span class="pres-sun">1 in 4</span> reports looking for a job change. We built a ranking model so recruiters can start with the candidates most likely to be receptive.</p>
+        </div>
+        <div>
+          <div class="pres-dotgrid" id="presDots" aria-label="100 candidate dots, 25 highlighted"></div>
+          <p class="pres-note">100 dots = 100 candidates · highlighted ≈ observed positive class</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="pres-scene" data-scene="business">
+      <p class="pres-kicker">01 · Business question</p>
+      <h2 class="pres-title small">FROM <span class="pres-highlight">19,158</span> NAMES<br>TO A SMARTER CALL LIST.</h2>
+      <p class="pres-lede">The decision is simple: <b>who should recruiters contact first?</b> This is a binary classification problem — job-change intent versus no reported intent.</p>
+      <div class="pres-grid cols-3">
+        <div class="pres-card"><span class="pres-number">25%</span><h3>Random base rate</h3><p>Roughly one in four labelled candidates is looking to move.</p></div>
+        <div class="pres-card"><span class="pres-number">0.50</span><h3>Dummy ROC-AUC</h3><p>A no-skill ranker is the floor every useful model must beat.</p></div>
+        <div class="pres-card dark"><span class="pres-number pres-cyan">RANK</span><h3>Not a hiring verdict</h3><p>The score prioritises outreach. A human recruiter still makes the decision.</p></div>
+      </div>
+    </section>
+
+    <section class="pres-scene" data-scene="data">
+      <p class="pres-kicker">02 · Data understanding</p>
+      <h2 class="pres-title small">THE DATA HAS A<br><span class="pres-cyan">GEOGRAPHY SIGNAL.</span></h2>
+      <div class="pres-grid cols-4">
+        <div class="pres-card"><span class="pres-number">19,158</span><h3>Labelled rows</h3><p>Candidate profiles used for model development.</p></div>
+        <div class="pres-card"><span class="pres-number">24.9%</span><h3>Positive class</h3><p>Reported job-change intent — imbalanced enough that accuracy alone can mislead.</p></div>
+        <div class="pres-card"><span class="pres-number">53%</span><h3>Missingness</h3><p>More than half the rows miss at least one field, so dropping rows would distort the sample.</p></div>
+        <div class="pres-card dark"><span class="pres-number pres-highlight">58% → 17%</span><h3>City development</h3><p>Observed job-change rate falls sharply from low to high development-index groups. Correlation, not causation.</p></div>
+      </div>
+      <div class="pres-row"><span class="pres-badge">city</span><span class="pres-badge">education</span><span class="pres-badge">experience</span><span class="pres-badge">company</span><span class="pres-badge">training hours</span><span class="pres-badge">missingness</span></div>
+    </section>
+
+    <section class="pres-scene" data-scene="prep">
+      <p class="pres-kicker">03 · Data preparation</p>
+      <h2 class="pres-title small">NO LEAKAGE.<br><span class="pres-sun">LOCK THE TEST SET.</span></h2>
+      <p class="pres-lede">The biggest modelling shortcut we avoided was letting evaluation data influence preprocessing, tuning or threshold selection.</p>
+      <div class="pres-flow">
+        <div class="pres-step"><strong>RAW DATA</strong><small>mixed numeric + categorical</small></div>
+        <div class="pres-step"><strong>MISSINGNESS</strong><small>preserved as information</small></div>
+        <div class="pres-step"><strong>FEATURES</strong><small>experience, recency, employer-info flags</small></div>
+        <div class="pres-step"><strong>5-FOLD CV</strong><small>development only</small></div>
+        <div class="pres-step"><strong>LOCKED 20%</strong><small>opened once at the end</small></div>
+      </div>
+      <div class="pres-grid cols-3">
+        <div class="pres-card dark"><span class="pres-number pres-cyan">0</span><h3>Duplicate IDs</h3><p>No candidate ID is duplicated in the labelled file.</p></div>
+        <div class="pres-card dark"><span class="pres-number pres-cyan">5</span><h3>CV folds</h3><p>Out-of-fold predictions choose settings without touching the locked test.</p></div>
+        <div class="pres-card dark"><span class="pres-number pres-cyan">3</span><h3>Final seeds</h3><p>The deployable CatBoost result is an ensemble, not a cherry-picked lucky run.</p></div>
+      </div>
+    </section>
+
+    <section class="pres-scene" data-scene="models">
+      <p class="pres-kicker">04 · Modelling & tuning</p>
+      <h2 class="pres-title small">COURSE BENCHMARK →<br><span class="pres-highlight">DEPLOYMENT EXTENSION.</span></h2>
+      <p class="pres-lede">We keep the taught-model benchmark for the rubric, then add CatBoost for the version we would actually deploy on this categorical, missing-value-heavy table.</p>
+      <div class="pres-bars">
+        <div class="pres-bar-row"><span>Dummy</span><div class="pres-bar-track"><div class="pres-bar-fill" style="--w:50%"></div></div><span class="score">0.500</span></div>
+        <div class="pres-bar-row"><span>Decision Tree</span><div class="pres-bar-track"><div class="pres-bar-fill" style="--w:61.6%"></div></div><span class="score">0.616</span></div>
+        <div class="pres-bar-row"><span>Random Forest / KNN</span><div class="pres-bar-track"><div class="pres-bar-fill" style="--w:78.5%"></div></div><span class="score">≈0.785</span></div>
+        <div class="pres-bar-row"><span>Logistic Regression</span><div class="pres-bar-track"><div class="pres-bar-fill" style="--w:79.1%"></div></div><span class="score">≈0.791</span></div>
+        <div class="pres-bar-row advanced"><span><b>CatBoost ensemble</b></span><div class="pres-bar-track"><div class="pres-bar-fill" style="--w:80.56%"></div></div><span class="score">0.806*</span></div>
+      </div>
+      <p class="pres-note">*5-fold out-of-fold ROC-AUC on development data. Final locked-test ROC-AUC: 0.8036.</p>
+    </section>
+
+    <section class="pres-scene" data-scene="demo">
+      <p class="pres-kicker">05 · Live deployment demo</p>
+      <h2 class="pres-title small">RUN A CANDIDATE<br><span class="pres-cyan">THROUGH THE MODEL.</span></h2>
+      <div class="pres-demo">
+        <form class="pres-card dark demo-form" id="liveDemoForm">
+          <label>City<input name="city" value="city_21"></label>
+          <label>Development index<input name="city_development_index" type="number" min="0" max="1" step="0.001" value="0.624"></label>
+          <label>Experience<select name="experience"><option>&lt;1</option><option>1</option><option>2</option><option>3</option><option>5</option><option>10</option><option>15</option><option>&gt;20</option></select></label>
+          <label>Education<select name="education_level"><option>Graduate</option><option>Masters</option><option>High School</option><option>Phd</option><option>Primary School</option></select></label>
+          <label>Relevant experience<select name="relevent_experience"><option>No relevent experience</option><option>Has relevent experience</option></select></label>
+          <label>Company size<input name="company_size" placeholder="leave blank = missing"></label>
+          <label>Company type<input name="company_type" placeholder="leave blank = missing"></label>
+          <label>Training hours<input name="training_hours" type="number" min="0" value="120"></label>
+          <input type="hidden" name="gender" value="">
+          <input type="hidden" name="enrolled_university" value="Full time course">
+          <input type="hidden" name="major_discipline" value="STEM">
+          <input type="hidden" name="last_new_job" value="2">
+          <div class="full pres-row" style="margin-top:4px"><button class="pres-btn" type="submit">Analyse candidate</button><button class="pres-btn secondary" type="button" id="demoPresetHigh">High-intent example</button><button class="pres-btn secondary" type="button" id="demoPresetLow">Low-intent example</button></div>
+        </form>
+        <div class="demo-output">
+          <div>
+            <div class="gauge" id="demoGauge" style="--p:0"><div class="gauge-inner"><div class="gauge-score" id="demoScore">—</div><div class="gauge-label">model score</div></div></div>
+            <div class="risk-pill" id="demoRisk">READY</div>
+            <div class="demo-signals" id="demoSignals"><span>profile cues appear here</span></div>
+            <p class="demo-status" id="demoStatus">Click “Analyse candidate”. Live predictions require the included Python server.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="pres-scene" data-scene="results">
+      <p class="pres-kicker">06 · Final evaluation</p>
+      <h2 class="pres-title small">THE DEPLOYMENT MODEL<br><span class="pres-sun">BEATS THE BASELINE.</span></h2>
+      <table class="metric-compare" aria-label="Baseline versus deployment model metrics">
+        <thead><tr><th>Locked-test metric</th><th>Original tuned Logistic Regression</th><th>CatBoost ensemble</th></tr></thead>
+        <tbody>
+          <tr><td>Accuracy (validation-selected threshold)</td><td>79.12%</td><td>80.19%</td></tr>
+          <tr><td>ROC-AUC</td><td>0.7923</td><td>0.8036</td></tr>
+          <tr><td>F1 at shown decision threshold</td><td>0.5914</td><td>0.6307</td></tr>
+          <tr><td>Recall at shown decision threshold</td><td>60.63%</td><td>67.85%</td></tr>
+        </tbody>
+      </table>
+      <p class="pres-note">For a fair accuracy comparison, each model uses its own accuracy threshold selected only from out-of-fold development predictions: Logistic Regression 0.632, CatBoost 0.43. ROC-AUC is threshold-independent. CatBoost’s F1-oriented validation threshold 0.314 gives locked-test F1 0.6394 and recall 73.61%.</p>
+    </section>
+
+    <section class="pres-scene" data-scene="impact">
+      <p class="pres-kicker">07 · Business use + limitations</p>
+      <h2 class="pres-title small">USE THE SCORE TO<br><span class="pres-highlight">PRIORITISE — NOT JUDGE.</span></h2>
+      <div class="pres-grid cols-3">
+        <div class="pres-card"><span class="pres-number">01</span><h3>Rank outreach</h3><p>Recruiters can sort a large pool and start where model scores are highest.</p></div>
+        <div class="pres-card"><span class="pres-number">02</span><h3>Choose threshold by capacity</h3><p>A lower threshold catches more potential movers; a higher threshold reduces calls.</p></div>
+        <div class="pres-card"><span class="pres-number">03</span><h3>Human review</h3><p>Never turn this into an automatic hiring or rejection rule.</p></div>
+      </div>
+      <div class="pres-grid cols-3">
+        <div class="pres-card dark"><h3>Data limitation</h3><p>One programme and one historical sample. Intent is not the same thing as future behaviour.</p></div>
+        <div class="pres-card dark"><h3>Fairness limitation</h3><p>City can proxy socioeconomic context; subgroup errors need an explicit audit before real use.</p></div>
+        <div class="pres-card dark"><h3>Performance ceiling</h3><p>~0.80 ROC-AUC is useful ranking signal, not certainty. Better behavioural and longitudinal features are the next data win.</p></div>
+      </div>
+    </section>
+
+    <section class="pres-scene" data-scene="finale">
+      <div class="pres-final">
+        <p class="pres-kicker">08 · Conclusion</p>
+        <h2 class="pres-title small">THE QUESTION WASN'T<br>“CAN ML PREDICT?”</h2>
+        <p class="pres-lede">It was: <b class="pres-sun">“Who should a recruiter talk to first?”</b></p>
+        <div class="pres-row"><span class="pres-badge">19,158 candidates</span><span class="pres-badge">5-fold validation</span><span class="pres-badge">locked test</span><span class="pres-badge">live deployment demo</span></div>
+        <h3 style="font-family:'Bungee';font-size:clamp(28px,4vw,54px);margin:34px 0 0">JOB-CHANGE RADAR · GROUP 9</h3>
+        <p class="pres-note">Press Esc or click below to open the detailed analysis, data dictionary, threshold explorer and Viva bank.</p>
+        <div class="pres-row"><button class="pres-btn" id="exploreBtn">Explore full project</button></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="pres-controls">
+    <button class="pres-navbtn" id="presPrev" aria-label="Previous scene">←</button>
+    <button class="pres-navbtn" id="presNext" aria-label="Next scene">→</button>
+    <div class="pres-progress"><span id="presProgressFill"></span></div>
+    <span class="pres-hud" id="presSceneLabel">SCENE 1 / 9</span>
+    <span class="pres-hud" id="presTimer">00:00 / 08:00</span>
+    <button class="pres-navbtn" id="presReset" title="Reset timer">↺</button>
+  </div>
+</div>
+<button class="pres-mode-enter" id="presEnter">Presentation Mode · P</button>
+
+
+<!-- ══ background ══ -->
+<div class="bg" aria-hidden="true">
+  <div class="orbs">
+    <span class="orb orb-a"></span>
+    <span class="orb orb-b"></span>
+    <span class="orb orb-c"></span>
+  </div>
+  <canvas id="stars"></canvas>
+  <div class="vignette"></div>
+</div>
+
+<div class="scrollbar" aria-hidden="true"><span id="scrollFill"></span></div>
+
+<!-- ══ header ══ -->
+<header class="topbar" id="topbar">
+  <a class="logo" href="#top">
+    <span class="logo-small">Group 9 · HR Analytics</span>
+    <span class="logo-big">Job&#8209;Change Radar</span>
+  </a>
+
+  <div class="dest lcd" id="destSign" aria-live="polite"><span class="dot">●</span> NEXT STOP: THE QUESTION</div>
+
+  <nav class="nav" id="nav" aria-label="Sections">
+    <a href="#question">Question</a>
+    <a href="#data">Data</a>
+    <a href="#prep">Prep</a>
+    <a href="#models">Models</a>
+    <a href="#results">Results</a>
+    <a href="#threshold">Threshold</a>
+    <a href="#drivers">Drivers</a>
+    <a href="#viva">Viva</a>
+    <a href="#team">Team</a>
+  </nav>
+
+  <div class="tools">
+    <button class="round" id="soundBtn" aria-pressed="false" aria-label="Toggle interface sound">🔈</button>
+    <button class="round menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+
+<!-- ══ HERO ══ -->
+<section class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <p class="pill">★ GROUP 9 &nbsp;·&nbsp; HR ANALYTICS &nbsp;·&nbsp; KAGGLE: JOB CHANGE OF DATA SCIENTISTS</p>
+      <h1>Who is about to<br><span class="hl-pink">change</span> jobs?</h1>
+      <p class="hero-lede">A training company produces data scientists every month — and loses most of them to somebody else.
+        We built a model that reads a trainee's <b>city, education, experience and employer</b> and ranks how likely they are
+        to be job hunting, so recruiters start at the top of the list instead of dialling 19,158 numbers.</p>
+
+      <div class="hero-actions">
+        <a class="btn btn-sun" href="#question" data-cursor="GO">Start the ride ↓</a>
+        <a class="btn btn-ghost" href="#results" data-cursor="SKIP">Jump to the report card</a>
+      </div>
+
+      <ul class="hero-stats">
+        <li><b class="num">19,158</b><span>labelled trainees</span></li>
+        <li><b class="num">14</b><span>input columns</span></li>
+        <li><b class="num">152</b><span>model features</span></li>
+        <li><b class="num lcdc">0.81</b><span>test ROC-AUC</span></li>
+      </ul>
+    </div>
+
+    <aside class="ticket guess" id="guess">
+      <div class="ticket-tab">GUESS FIRST</div>
+      <h2 class="ticket-q">Out of these 100 trainees, how many are job hunting?</h2>
+      <div class="dots" id="dots" role="img" aria-label="Grid of 100 trainee dots"></div>
+      <div class="ticket-foot">
+        <button class="btn btn-pink" id="guessBtn" data-cursor="REVEAL">Reveal the answer</button>
+        <p class="ticket-answer" id="guessAnswer">Take a guess first — shout a number. →</p>
+      </div>
+      <p class="ticket-src">Each dot = one trainee in <code>aug_train.csv</code>. This one number is the whole project.</p>
+    </aside>
+  </div>
+
+  <!-- perspective road -->
+  <div class="road" aria-hidden="true"><div class="road-surface"></div></div>
+  <div class="hero-fade" aria-hidden="true"></div>
+</section>
+
+<!-- ══ 01 · THE QUESTION ══ -->
+<section class="stop" id="question" data-sign="THE QUESTION">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 01 · PART 1 · THE BUSINESS QUESTION</p>
+        <h2 class="display">19,158 trainees,<br>not enough recruiters</h2>
+      </div>
+      <p class="stop-num" aria-hidden="true">01</p>
+    </div>
+
+    <div class="question-box">
+      <p class="q-label lcd">THE QUESTION</p>
+      <p class="q-text">Given a trainee's <b>education, experience, current employer and city</b>, can we predict whether they are looking for a job change?</p>
+    </div>
+
+    <div class="grid-4">
+      <div class="card card-sun"><b class="stat">19,158</b><span>labelled trainees in <code>aug_train.csv</code></span></div>
+      <div class="card card-pink"><b class="stat">2,129</b><span>new trainees in <code>aug_test.csv</code> to score</span></div>
+      <div class="card card-lcd"><b class="stat">14</b><span>input columns + target to work with</span></div>
+      <div class="card card-purple"><b class="stat">25%</b><span>are looking to move — about 1 in 4</span></div>
+    </div>
+
+    <div class="split">
+      <div class="card dark">
+        <p class="tag lcd">WHY NOT ACCURACY?</p>
+        <h3>A model that says “nobody is leaving” scores 75%.</h3>
+        <p>Only 24.9% of trainees are looking (4,777 of 19,158). So the lazy model that always predicts <i>“not looking”</i>
+          is right three times out of four — and finds <b>zero</b> job hunters. It sits in a burning room saying <i>this is fine</i>.</p>
+        <div class="mini-vs">
+          <div><b class="num">75.1%</b><span>Dummy accuracy</span></div>
+          <div class="cross">vs</div>
+          <div><b class="num">0</b><span>job hunters found</span></div>
+        </div>
+        <p class="muted">That is exactly why we score with <b>ROC-AUC</b> and <b>F1</b>, never accuracy.</p>
+      </div>
+
+      <div class="metrics grid-2">
+        <div class="card">
+          <h4 class="m-title">ROC-AUC <span class="chip chip-lcd">0.81</span></h4>
+          <p>Pick one person who is job hunting and one who is not: the model ranks the hunter higher <b>81% of the time</b>. 0.50 is a coin flip.</p>
+        </div>
+        <div class="card">
+          <h4 class="m-title">Recall <span class="chip chip-pink">78%</span></h4>
+          <p>Of everyone who really is looking, we catch <b>78%</b>. The other 22% are the ones we miss.</p>
+        </div>
+        <div class="card">
+          <h4 class="m-title">Precision <span class="chip chip-sun">52%</span></h4>
+          <p>Half the people we flag really are looking. Random calling hits 25%, so we are <b>2.1× better</b> than guessing.</p>
+        </div>
+        <div class="card">
+          <h4 class="m-title">F1 <span class="chip chip-purple">0.63</span></h4>
+          <p>The balance of precision and recall — one number to compare models when the classes are lopsided.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <span class="callout-icon">🎯</span>
+      <p><b>Business value in plain numbers:</b> with 2 recruiters you can only call a slice of the list. Ranking 19,158 trainees by
+        probability means the first 800 calls reach <b>78% of everyone who is actually looking</b> instead of the 25% you would hit at random.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 02 · DATA UNDERSTANDING ══ -->
+<section class="stop alt" id="data" data-sign="DATA UNDERSTANDING">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 02 · PART 1 · DATA UNDERSTANDING</p>
+        <h2 class="display">Spot the job hunter</h2>
+        <p class="lede">Two real trainees from the test file. Both are graduates, both studied STEM. One of them is about to leave.
+          The model gives them very different scores — and the reasons are visible in five columns.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">02</p>
+    </div>
+
+    <div class="duel">
+      <article class="card trainee" data-side="a">
+        <header><span class="badge">TRAINEE A</span></header>
+        <dl>
+          <div><dt>City</dt><dd>city_103 <i>(index 0.92)</i></dd></div>
+          <div><dt>Experience</dt><dd>more than 20 years</dd></div>
+          <div><dt>Employer</dt><dd>Pvt Ltd, 10,000+ staff</dd></div>
+          <div><dt>Last job change</dt><dd>more than 4 years ago</dd></div>
+          <div><dt>Studying</dt><dd>not enrolled</dd></div>
+        </dl>
+        <div class="score" data-score="26"><span class="score-num">??%</span><span class="score-cap">predicted intent</span></div>
+      </article>
+
+      <div class="duel-mid">
+        <span class="vs-sticker">VS</span>
+        <button class="btn btn-pink" id="duelBtn" data-cursor="SCORE">Reveal both scores</button>
+      </div>
+
+      <article class="card trainee" data-side="b">
+        <header><span class="badge badge-alt">TRAINEE B</span></header>
+        <dl>
+          <div><dt>City</dt><dd>city_21 <i>(index 0.62)</i></dd></div>
+          <div><dt>Experience</dt><dd>under 1 year</dd></div>
+          <div><dt>Employer</dt><dd>none on record</dd></div>
+          <div><dt>Last job change</dt><dd>2 years ago</dd></div>
+          <div><dt>Studying</dt><dd>full-time course</dd></div>
+        </dl>
+        <div class="score" data-score="96"><span class="score-num">??%</span><span class="score-cap">predicted intent</span></div>
+      </article>
+    </div>
+
+    <div class="grid-2 charts-2">
+      <figure class="card chart-card">
+        <figcaption>
+          <h3>Reported job-change rate by city development index</h3>
+          <p class="muted">The least developed cities lose more than half their trainees. The most developed ones barely any.</p>
+        </figcaption>
+        <div class="chart" data-render="cityBins"></div>
+        <p class="chart-note"><b>58% vs 17%</b> — job hunting below 0.60 versus 0.90 and up.</p>
+      </figure>
+
+      <figure class="card chart-card">
+        <figcaption>
+          <h3>The rate falls steadily with experience</h3>
+          <p class="muted">Job-change rate by total years of experience, all 22 buckets in order.</p>
+        </figcaption>
+        <div class="chart" data-render="experience"></div>
+        <p class="chart-note"><b>45% vs 15%</b> — under 1 year of experience versus more than 20.</p>
+      </figure>
+    </div>
+
+    <div class="grid-3 facts">
+      <div class="card dark"><b class="num lcdc">-0.02</b><p>correlation of <code>training_hours</code> with the target. The number a training company cares about most, predicts least.</p></div>
+      <div class="card dark"><b class="num lcdc">123</b><p>distinct cities. The top 10 hold <b>66%</b> of all candidates, and every city has exactly one development index.</p></div>
+      <div class="card dark"><b class="num lcdc">0.74 / 0.91</b><p>median city development index of movers versus stayers. That gap is the whole story.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 03 · DATA PREPARATION ══ -->
+<section class="stop" id="prep" data-sign="DATA PREPARATION">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 03 · PART 2 · DATA PREPARATION</p>
+        <h2 class="display">The missing data was<br>hiding the job hunters</h2>
+        <p class="lede">Four columns are missing between 15% and 32% of their values. The textbook move is to drop every
+          incomplete row. We checked what that costs first — and changed our minds.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">03</p>
+    </div>
+
+    <div class="grid-2 charts-2">
+      <figure class="card chart-card">
+        <figcaption>
+          <h3>Missing values by column</h3>
+          <p class="muted">% of the 19,158 rows with no value recorded.</p>
+        </figcaption>
+        <div class="chart" data-render="missingPct"></div>
+      </figure>
+
+      <figure class="card chart-card">
+        <figcaption>
+          <h3>Job-change rate: value missing vs present</h3>
+          <p class="muted">Missingness is not random — it is a signal on its own.</p>
+        </figcaption>
+        <div class="chart" data-render="missingSignal"></div>
+        <p class="chart-note"><b>41% vs 18%</b> — when company size is blank, twice as many are job hunting. They probably have no employer to write down.</p>
+      </figure>
+    </div>
+
+    <div class="callout callout-warn">
+      <span class="callout-icon">🗑️</span>
+      <p><b>What dropping the rows would do:</b> delete <b>53%</b> of the dataset and drag the job-change rate in what is left
+        from <b>25% down to 17%</b>. The job hunters are hiding in the missing rows. So we kept every row:
+        missing categories became an explicit <b>“Unknown”</b> level, missing numbers got the <b>median</b> — fitted on training data only.</p>
+    </div>
+
+    <h3 class="sub display">From messy text to 152 numbers</h3>
+    <div class="pipeline">
+      <div class="pipe-step card">
+        <span class="pipe-badge">14</span>
+        <h4>Raw inputs</h4>
+        <p>Drop <code>enrollee_id</code> first — an ID predicts nothing. Turn <code>experience</code> (<code>&lt;1</code>, <code>&gt;20</code>) into real years
+          (0.5 and 21) and <code>last_new_job</code> (<code>never</code>, <code>&gt;4</code>) into years (0 and 5). Order kept, 28 dummy columns saved.</p>
+      </div>
+      <div class="pipe-arrow" aria-hidden="true">→</div>
+      <div class="pipe-step card card-purple">
+        <span class="pipe-badge">152</span>
+        <h4>Model features</h4>
+        <p>Nominal one-hot, ordinal codes, scaled numbers — all fitted inside the pipeline, so nothing ever learns from the test set.</p>
+      </div>
+    </div>
+
+    <div class="grid-3 encodings">
+      <div class="card">
+        <p class="tag lcd">NOMINAL · 6 COLUMNS</p>
+        <h4>One-hot</h4>
+        <p class="muted">Missing becomes <b>Unknown</b>; unseen categories are ignored.</p>
+        <p class="code-list">city · gender · relevent_experience · enrolled_university · major_discipline · company_type</p>
+      </div>
+      <div class="card">
+        <p class="tag lcd">ORDINAL · 2 COLUMNS</p>
+        <h4>Ordered codes</h4>
+        <p class="muted">A real order exists, so we keep it: Primary School → Phd, &lt;10 → 10000+.</p>
+        <p class="code-list">education_level · company_size</p>
+      </div>
+      <div class="card">
+        <p class="tag lcd">NUMERIC · 4 COLUMNS</p>
+        <h4>Median fill + scaling</h4>
+        <p class="muted">So no column shouts louder than the others.</p>
+        <p class="code-list">city_development_index · training_hours · experience_num · last_new_job_num</p>
+      </div>
+    </div>
+
+    <div class="grid-3 facts">
+      <div class="card dark"><b class="num lcdc">15,326 / 3,832</b><p>train and test rows — an 80/20 <b>stratified</b> split, 25% job-change rate in both.</p></div>
+      <div class="card dark"><b class="num lcdc">5-fold</b><p>stratified cross-validation on the training set for every model comparison.</p></div>
+      <div class="card dark"><b class="num lcdc">0 leakage</b><p>imputers, encoders and scalers are fitted inside each CV fold, on training data only.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 04 · MODELLING ══ -->
+<section class="stop alt" id="models" data-sign="MODELLING & TUNING">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 04 · PART 3 · MODELLING &amp; TUNING</p>
+        <h2 class="display">Five models walked into<br>a cross-validation</h2>
+      </div>
+      <p class="stop-num" aria-hidden="true">04</p>
+    </div>
+
+    <div class="bet" id="bet">
+      <p class="tag lcd">PLACE YOUR BETS</p>
+      <p class="bet-q">Which one wins: Logistic Regression, KNN, Random Forest, Decision Tree — or the Dummy?</p>
+      <div class="bet-row" id="betRow"></div>
+      <div class="bet-result" id="betResult" hidden>
+        <p><b>Logistic Regression</b> — the simplest real model on the list. Random forest and KNN finished within 0.007 of it,
+          which is about the normal wobble between folds. The unpruned decision tree memorised its homework (0.616).</p>
+        <p class="muted">When it is a tie we keep the simple one, because when HR asks <i>“why was this person flagged?”</i>,
+          one equation with coefficients can answer. Corporate needs you to find the difference between a 300-tree forest and
+          one equation — there isn't one.</p>
+      </div>
+    </div>
+
+    <figure class="card chart-card wide">
+      <figcaption>
+        <h3>5-fold cross-validated scores on the training set</h3>
+        <p class="muted">Mean ROC-AUC and F1, ranked. Every model beats the dummy baseline, so the features do help.</p>
+      </figcaption>
+      <div class="chart" data-render="models"></div>
+    </figure>
+
+    <div class="grid-3 facts">
+      <div class="card dark"><b class="num lcdc">0.789 → 0.791</b><p>GridSearchCV over <code>C</code> and penalty: best was <b>C = 0.1, L2</b>. A small gain — the model is limited by the information in the features, not by its settings.</p></div>
+      <div class="card dark"><b class="num lcdc">0.616</b><p>the unpruned Decision Tree, the weakest real model. It memorises the training folds and falls apart on new data.</p></div>
+      <div class="card dark"><b class="num lcdc">0.500</b><p>the Dummy baseline's ROC-AUC — the number every serious model has to clear.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 05 · RESULTS ══ -->
+<section class="stop" id="results" data-sign="RESULTS">
+  <div class="wrap">
+    <div class="callout" style="margin-bottom:28px"><span class="callout-icon">🧪</span><p><b>Two result tracks:</b> the detailed charts below document the original tuned Logistic Regression benchmark. The deployment extension is evaluated separately on a fresh locked split: <b>80.19% accuracy · 0.8036 ROC-AUC · 0.6307 F1</b>.</p></div>
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 05 · PART 3 · RESULTS</p>
+        <h2 class="display">Report card: 78% of the<br>job hunters caught</h2>
+        <p class="lede">We kept 20% of the data locked away for the whole project and opened it exactly once, at the end.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">05</p>
+    </div>
+
+    <div class="grid-4 report">
+      <div class="card report-card c-lcd"><b class="stat">0.81</b><span class="r-name">ROC-AUC</span><p>picks the job hunter over a non-hunter 81% of the time</p></div>
+      <div class="card report-card c-pink"><b class="stat">78%</b><span class="r-name">Recall</span><p>of real job hunters are found</p></div>
+      <div class="card report-card c-sun"><b class="stat">52%</b><span class="r-name">Precision</span><p>of flagged trainees really are looking — 2.1× random calling</p></div>
+      <div class="card report-card c-purple"><b class="stat">0.63</b><span class="r-name">F1</span><p>the balance of precision and recall</p></div>
+    </div>
+
+    <div class="split">
+      <div class="card">
+        <h3 class="sub display">Confusion matrix</h3>
+        <p class="muted">3,832 test trainees at threshold 0.5. Hover a cell to see what it means.</p>
+        <div class="matrix" id="matrix05">
+          <div class="mx-corner"></div>
+          <div class="mx-head">Predicted: not looking</div>
+          <div class="mx-head">Predicted: looking</div>
+          <div class="mx-head row">Actually not looking</div>
+          <div class="mx-cell good" data-note="True negative — correctly left alone. 2,197 people we do not waste a call on."><b>2,197</b><span>true negative</span></div>
+          <div class="mx-cell bad" data-note="False positive — flagged but staying. This is the recruiter's wasted call: 680 of them."><b>680</b><span>false positive</span></div>
+          <div class="mx-head row">Actually looking</div>
+          <div class="mx-cell warn" data-note="False negative — job hunters we missed: 207 people who slip away to a competitor."><b>207</b><span>false negative</span></div>
+          <div class="mx-cell great" data-note="True positive — job hunters caught: 748 people recruiters should call first."><b>748</b><span>true positive</span></div>
+        </div>
+        <p class="matrix-note" id="matrixNote">Hover a cell to read what it means. &nbsp;·&nbsp; accuracy 76.8%, F1 0.628, ROC-AUC 0.808.</p>
+      </div>
+
+      <div class="card">
+        <h3 class="sub display">ROC curve on the test set</h3>
+        <p class="muted">The true-positive rate against the false-positive rate at every threshold.</p>
+        <div class="chart" data-render="roc"></div>
+        <p class="chart-note">Test <b>0.808</b> sits right next to the cross-validation estimate <b>0.791</b> — <b>no sign of overfitting</b>.
+          Across five different random splits the test ROC-AUC stays between <b>0.784 and 0.809</b> (mean 0.795).</p>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <figure class="card chart-card">
+        <figcaption>
+          <h3>Where every test probability landed</h3>
+          <p class="muted">Score distribution of the 3,832 hold-out trainees, split by whether they were actually looking.</p>
+        </figcaption>
+        <div class="chart" data-render="hist"></div>
+        <p class="chart-note">The two groups overlap heavily — that is why we <b>rank</b> people instead of drawing a hard line.</p>
+      </figure>
+
+      <div class="card dark">
+        <p class="tag lcd">AND THE DUMMY?</p>
+        <h3>75.1% accuracy, zero job hunters found.</h3>
+        <p>Our tuned model gets 76.9% accuracy — barely above the dummy — but it finds 748 job hunters where the dummy finds none.
+          This is exactly why accuracy was never used to choose the model.</p>
+        <table class="mini-table">
+          <thead><tr><th>Metric</th><th>Tuned LogReg</th><th>Dummy</th></tr></thead>
+          <tbody>
+            <tr><td>Accuracy</td><td>0.769</td><td>0.751</td></tr>
+            <tr><td>Precision</td><td>0.524</td><td>0.000</td></tr>
+            <tr><td>Recall</td><td>0.783</td><td>0.000</td></tr>
+            <tr><td>F1</td><td>0.628</td><td>0.000</td></tr>
+            <tr><td>ROC-AUC</td><td>0.808</td><td>0.500</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 06 · THRESHOLD ══ -->
+<section class="stop alt" id="threshold" data-sign="YOUR CALL">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 06 · PART 3 · YOUR CALL</p>
+        <h2 class="display">You're HR. Pick a cut-off.</h2>
+        <p class="lede">The model gives every trainee a probability; 0.5 is only the default. Catch more job hunters, or waste
+          fewer calls? Drag the slider — this is a business decision, not a maths one.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">06</p>
+    </div>
+
+    <div class="thr card dark">
+      <div class="thr-top">
+        <label class="lcd" for="thrRange">PROBABILITY THRESHOLD</label>
+        <output class="thr-value" id="thrValue" for="thrRange">0.50</output>
+      </div>
+      <input type="range" id="thrRange" min="20" max="90" step="1" value="50" data-cursor="DRAG"
+             aria-label="Probability threshold" aria-describedby="thrVerdict">
+      <div class="thr-ticks"><span>0.20</span><span>0.35</span><span>0.50</span><span>0.65</span><span>0.80</span><span>0.90</span></div>
+
+      <div class="thr-presets">
+        <button class="btn btn-ghost" data-preset="50">0.5 · Wide net</button>
+        <button class="btn btn-ghost" data-preset="70">0.7 · Short list</button>
+        <button class="btn btn-ghost" data-preset="60">0.6 · Best F1</button>
+      </div>
+
+      <div class="thr-stats">
+        <div class="thr-stat"><b class="num" id="mShare">37.3%</b><span>of trainees flagged<br>(the calls you make)</span></div>
+        <div class="thr-stat"><b class="num" id="mRec">78.3%</b><span>recall — job hunters found</span></div>
+        <div class="thr-stat"><b class="num" id="mPrec">52.4%</b><span>precision — calls that land</span></div>
+        <div class="thr-stat"><b class="num" id="mF1">0.628</b><span>F1 at this cut-off</span></div>
+      </div>
+
+      <div class="thr-live">
+        <div class="mini-matrix">
+          <div class="mm"><b id="lTP">748</b><span>caught</span></div>
+          <div class="mm"><b id="lFN">207</b><span>missed</span></div>
+          <div class="mm"><b id="lFP">680</b><span>false alarms</span></div>
+          <div class="mm"><b id="lTN">2197</b><span>left alone</span></div>
+        </div>
+        <p class="verdict" id="thrVerdict">The default wide net: you call 37% of trainees and reach 78% of the job hunters.</p>
+      </div>
+
+      <div class="chart" data-render="thrCurves" id="thrChart"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card card-pink">
+        <p class="tag">0.5 · WIDE NET</p>
+        <p>Call <b>37.3%</b> of trainees, reach <b>78.3%</b> of job hunters, <b>52.4%</b> of calls land. Choose this when recruiter
+          time is plentiful and missing someone is expensive.</p>
+      </div>
+      <div class="card card-lcd">
+        <p class="tag">0.7 · SHORT LIST</p>
+        <p>Call <b>21.1%</b> of trainees, reach <b>50.6%</b> of job hunters, <b>59.7%</b> of calls land. Choose this when you have
+          two recruiters and forty minutes a day.</p>
+      </div>
+    </div>
+    <p class="muted footnote">Note: in a real project the threshold is chosen on validation data. These numbers are shown on the
+      test set to illustrate the trade-off, not to tune it.</p>
+  </div>
+</section>
+
+<!-- ══ 07 · DRIVERS ══ -->
+<section class="stop" id="drivers" data-sign="WHAT DRIVES IT">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 07 · PART 3 · WHAT DRIVES THE PREDICTIONS</p>
+        <h2 class="display">Plot twist: it's mostly<br>about where you live</h2>
+        <p class="lede">We shuffled one column at a time and watched how much the test ROC-AUC dropped. The bigger the drop,
+          the more the model leans on that column. This is <b>predictive importance, not cause</b>.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">07</p>
+    </div>
+
+    <figure class="card chart-card wide">
+      <figcaption>
+        <h3>Drop in test ROC-AUC when each column is shuffled</h3>
+        <p class="muted">Permutation importance, 10 repeats, mean ± std. The model only has eyes for one thing.</p>
+      </figcaption>
+      <div class="chart" data-render="importance"></div>
+    </figure>
+
+    <div class="grid-3 facts">
+      <div class="card dark"><b class="num lcdc">58% vs 17%</b><p>job hunting in cities below 0.60 versus 0.90 and up. <span class="muted">A target-rate difference in this sample, not a causal effect.</span></p></div>
+      <div class="card dark"><b class="num lcdc">39% vs 18%</b><p>no employer on record versus working at a Pvt Ltd. <span class="muted">Missing ≠ unemployed — it means nobody wrote it down.</span></p></div>
+      <div class="card dark"><b class="num lcdc">0.0003</b><p>ROC-AUC lost when <code>gender</code> is dropped from the model. <span class="muted">A sensitive feature: remove it and audit errors by group.</span></p></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="sub display">What raises the odds</h3>
+        <ul class="arrow-list up">
+          <li><b>company_type = Unknown</b> — no employer recorded, one of the strongest positive coefficients</li>
+          <li><b>city_21</b> — the big low-development city (index 0.62, 59% job-change rate)</li>
+          <li><b>city_103, city_160, city_100</b> — individual city effects stacked on top of the index</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3 class="sub display">What lowers the odds</h3>
+        <ul class="arrow-list down">
+          <li><b>major_discipline = Unknown</b> — the largest negative coefficient (~20% job-change rate)</li>
+          <li><b>city_development_index</b> — higher index, sharply lower odds (coefficient −0.61 per SD)</li>
+          <li><b>Funded Startup, more experience, relevant experience</b> — senior people with options tend to stay</li>
+        </ul>
+      </div>
+    </div>
+    <p class="muted footnote">Training hours, gender and last_new_job add almost nothing: 0.0008, 0.0006 and 0.0008 ROC-AUC
+      respectively. The number a training company would naturally brag about is dead last.</p>
+  </div>
+</section>
+
+<!-- ══ 08 · CONCLUSIONS ══ -->
+<section class="stop alt" id="conclusions" data-sign="CONCLUSIONS">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 08 · PART 4 · CONCLUSIONS</p>
+        <h2 class="display">Can HR use the model?<br>Only as decision support.</h2>
+        <p class="lede">Test ROC-AUC <b>0.81</b>, against 0.50 for a coin flip, stable between 0.78 and 0.81 across five random
+          splits. Well enough to rank people — not well enough to decide for them.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">08</p>
+    </div>
+
+    <div class="grid-3">
+      <div class="card big-num">
+        <span class="idx lcd">01</span>
+        <h3>Research, don't automate</h3>
+        <p>Use the scores to study aggregate patterns or plan follow-up research — never as a verdict on a person.</p>
+      </div>
+      <div class="card big-num">
+        <span class="idx lcd">02</span>
+        <h3>Validate before use</h3>
+        <p>Choose thresholds with validation data, business costs and recruiter capacity, not on the test set.</p>
+      </div>
+      <div class="card big-num">
+        <span class="idx lcd">03</span>
+        <h3>Keep humans in the loop</h3>
+        <p>Never automatically reject, rank or contact people from model predictions alone. A recruiter reviews every case.</p>
+      </div>
+    </div>
+
+    <div class="ops">
+      <p class="tag lcd">IF HR DOES USE IT, THIS IS HOW</p>
+      <div class="grid-3">
+        <div class="card dark"><h4>Rank, don't label</h4><p>Use the score to decide who to call first — never as a yes/no verdict on a person.</p></div>
+        <div class="card dark"><h4>Set the cut-off by capacity</h4><p>0.5 when HR wants coverage, 0.7 when recruiter time is short.</p></div>
+        <div class="card dark"><h4>Target where movers are</h4><p>Trainees from less developed cities and people early in their careers.</p></div>
+      </div>
+    </div>
+
+    <div class="scored card card-sun">
+      <p class="tag">PROOF IT RUNS</p>
+      <p>The same pipeline scored the unlabelled file: <b>2,129 new candidates</b> ranked and saved to
+        <code>aug_test_predictions.csv</code> in <code>enrollee_id,target</code> format. At threshold 0.5 it flags
+        <b>36.7%</b> of them. Every top-10 candidate lives in <b>city_21</b> with no employer on record.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 09 · LIMITATIONS ══ -->
+<section class="stop" id="limits" data-sign="LIMITATIONS">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 09 · PART 4 · LIMITATIONS &amp; WAY FORWARD</p>
+        <h2 class="display">What our model is bad at,<br>and what we'd do next</h2>
+      </div>
+      <p class="stop-num" aria-hidden="true">09</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card limitations">
+        <p class="tag lcd">LIMITATIONS</p>
+        <ul class="tick-list warn">
+          <li><b>Reported intent is not behaviour.</b> The target is what people said, not actual resignation or future behaviour.</li>
+          <li><b>Associations are not causes.</b> Missing, sampling, geographic and demographic bias may shape the patterns.</li>
+          <li><b>Weak generalisation.</b> One programme, one point in time — results may not transfer to other organisations or years.</li>
+          <li><b>Not an employment decision rule.</b> 1 in 2 flags is a false positive; it must never be the sole basis for a decision.</li>
+        </ul>
+      </div>
+      <div class="card limitations">
+        <p class="tag lcd">WAY FORWARD</p>
+        <ul class="tick-list good">
+          <li><b>Validate on new cohorts.</b> Re-test performance, calibration and subgroup errors before any deployment.</li>
+          <li><b>Audit fairness and proxies.</b> Compare errors across demographic and geographic groups; drop <code>gender</code>.</li>
+          <li><b>Choose thresholds responsibly.</b> Calibration checks plus documented business requirements, on validation data.</li>
+          <li><b>Keep human review.</b> Predictions are decision support only — retrain and track recall against what people actually did.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid-3 facts">
+      <div class="card dark"><b class="num lcdc">1 in 2</b><p>flags is a false positive. Some people just like free courses.</p></div>
+      <div class="card dark"><b class="num lcdc">New cohorts</b><p>CatBoost is now the deployment extension; the next gain should come from longitudinal outcomes and external validation, not endless tuning.</p></div>
+      <div class="card dark"><b class="num lcdc">Calibrate</b><p>class weighting inflates the probabilities — calibrate first, then cost the cut-off.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 10 · DATA DICTIONARY ══ -->
+<section class="stop alt" id="dictionary" data-sign="DATA DICTIONARY">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 10 · APPENDIX · DATA DICTIONARY</p>
+        <h2 class="display">Every column, explained</h2>
+        <p class="lede">Source: <a href="https://www.kaggle.com/datasets/arashnic/hr-analytics-job-change-of-data-scientists" target="_blank" rel="noopener">Kaggle — HR Analytics: Job Change of Data Scientists</a>.
+          Local copy in <code>archive/</code>. Each row is one candidate who signed up for the training.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">10</p>
+    </div>
+
+    <div class="table-wrap card">
+      <table class="dict-table">
+        <thead>
+          <tr><th>Column</th><th>Type</th><th>Values</th><th>Missing</th><th>What it means</th></tr>
+        </thead>
+        <tbody id="dictBody"></tbody>
+      </table>
+    </div>
+
+    <div class="grid-3 files">
+      <div class="card"><p class="tag lcd">aug_train.csv</p><p><b>19,158 rows × 14 columns</b><br>Labelled data including <code>target</code>. Used for training and evaluation.</p></div>
+      <div class="card"><p class="tag lcd">aug_test.csv</p><p><b>2,129 rows × 13 columns</b><br>The same columns without <code>target</code>, scored at the end of the notebook.</p></div>
+      <div class="card"><p class="tag lcd">sample_submission.csv</p><p><b>2,129 rows × 2 columns</b><br>The expected output format: <code>enrollee_id,target</code> (probability).</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 11 · ROADMAP ══ -->
+<section class="stop" id="roadmap" data-sign="THE NOTEBOOK ROUTE">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 11 · APPENDIX · THE NOTEBOOK ROUTE</p>
+        <h2 class="display">16 stops, one notebook</h2>
+        <p class="lede">Every step of <code>Group9_HRJobChange.ipynb</code>, from imports to recommendations. It runs top to
+          bottom with <b>Restart &amp; Run All</b> and no red error boxes.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">11</p>
+    </div>
+
+    <ol class="route" id="route"></ol>
+
+    <div class="grid-2">
+      <div class="card dark">
+        <p class="tag lcd">WHAT WE SUBMIT</p>
+        <ul class="file-list">
+          <li><code>Group9_HRJobChange.ipynb</code><span>notebook, restart &amp; run all</span></li>
+          <li><code>Group9_HRJobChange.html</code><span>every table and chart, no setup</span></li>
+          <li><code>Group9_HRJobChange.pptx</code><span>12 slides, quizzes, memes</span></li>
+          <li><code>Group9_Presentation_Script.docx</code><span>everyone's lines, slide by slide</span></li>
+          <li><code>Group9_HRJobChange_DataDictionary.md</code><span>what every column means</span></li>
+          <li><code>Group9_Viva_Questions.html</code><span>65 questions with answers</span></li>
+          <li><code>archive/</code><span>aug_train / aug_test / sample_submission</span></li>
+        </ul>
+      </div>
+      <div class="card dark">
+        <p class="tag lcd">HOW TO CHECK IT WORKED</p>
+        <ul class="check-list">
+          <li>No red error boxes anywhere</li>
+          <li>10 charts along the way</li>
+          <li>Prints <code>Test ROC-AUC : 0.808</code>, <code>recall : 0.783</code>, <code>precision : 0.524</code></li>
+          <li><code>outputs/aug_test_predictions.csv</code> and <code>artifacts/final_model.pkl</code> appear</li>
+        </ul>
+        <p class="muted">Optional on your own machine: <code>python train_model.py</code>, <code>python predict.py</code>,
+          <code>python generate_report.py</code> — Colab is easier and takes about 3 minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 12 · VIVA ══ -->
+<section class="stop alt" id="viva" data-sign="VIVA Q&amp;A">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 12 · APPENDIX · VIVA PREP</p>
+        <h2 class="display">65 questions the teacher<br>might ask</h2>
+        <p class="lede">Every answer was checked against the notebook and the data. Filter by topic, hit a random one, or open
+          everything before you practise out loud.</p>
+      </div>
+      <p class="stop-num" aria-hidden="true">12</p>
+    </div>
+
+    <div class="viva-tools">
+      <div class="chips" id="vivaChips"></div>
+      <div class="viva-actions">
+        <button class="btn btn-ghost" id="vivaRandom" data-cursor="SHUFFLE">🎲 Random question</button>
+        <button class="btn btn-ghost" id="vivaToggle" data-cursor="OPEN">Show all answers</button>
+      </div>
+    </div>
+
+    <div class="numbers-box card card-sun">
+      <p class="tag">NUMBERS EVERY MEMBER SHOULD KNOW WITHOUT LOOKING</p>
+      <ul class="num-grid">
+        <li><b>19,158</b><span>labelled candidates, 14 columns</span></li>
+        <li><b>24.9%</b><span>looking to move (4,777) · ratio about 3 to 1</span></li>
+        <li><b>2,129</b><span>unlabelled candidates in aug_test.csv</span></li>
+        <li><b>12 → 152</b><span>input features before and after encoding</span></li>
+        <li><b>32% / 31%</b><span>missing in company_type / company_size</span></li>
+        <li><b>53%</b><span>of rows have at least one missing value</span></li>
+        <li><b>0.789 → 0.791</b><span>CV ROC-AUC before and after tuning</span></li>
+        <li><b>C = 0.1, L2</b><span>best tuned settings</span></li>
+        <li><b>0.808</b><span>test ROC-AUC (0.797 on the training set)</span></li>
+        <li><b>78% / 52%</b><span>recall / precision on the test set</span></li>
+        <li><b>0.63</b><span>test F1 · accuracy 76.9% vs 75.1% dummy</span></li>
+        <li><b>748 · 680 · 207 · 2,197</b><span>TP · FP · FN · TN</span></li>
+        <li><b>0.784 → 0.809</b><span>test ROC-AUC across 5 random splits (mean 0.795)</span></li>
+        <li><b>0.10</b><span>ROC-AUC drop when city_development_index is shuffled</span></li>
+      </ul>
+    </div>
+
+    <div class="faq" id="faq"></div>
+    <p class="muted footnote">Tip: the teacher can point at any member and ask about any part, so everyone should know the
+      numbers box and at least the first card in each topic.</p>
+  </div>
+</section>
+
+<!-- ══ 13 · TEAM ══ -->
+<section class="stop" id="team" data-sign="WHO DID WHAT">
+  <div class="wrap">
+    <div class="stop-head">
+      <div>
+        <p class="kicker lcd">STOP 13 · GROUP 9</p>
+        <h2 class="display">Who did what</h2>
+        <p class="lede">Five roles, four parts, one notebook. <span class="muted">Click a name to type it in — it stays on this device.</span></p>
+      </div>
+      <p class="stop-num" aria-hidden="true">13</p>
+    </div>
+
+    <div class="grid-3 team-grid" id="teamGrid">
+      <div class="card team-card"><span class="role-tag">PART 1 · THE DETECTIVE</span>
+        <div class="name-slot" contenteditable="true" data-key="detective" spellcheck="false">Your name</div>
+        <p>Business question, data understanding and the data dictionary.</p></div>
+      <div class="card team-card"><span class="role-tag">PART 2 · THE CLEANER</span>
+        <div class="name-slot" contenteditable="true" data-key="cleaner" spellcheck="false">Your name</div>
+        <p>Missing values, data cleaning and the encoding pipeline.</p></div>
+      <div class="card team-card"><span class="role-tag">PART 3 · THE TRAINER</span>
+        <div class="name-slot" contenteditable="true" data-key="trainer" spellcheck="false">Your name</div>
+        <p>Model comparison and hyperparameter tuning.</p></div>
+      <div class="card team-card"><span class="role-tag">PART 3 · THE JUDGE</span>
+        <div class="name-slot" contenteditable="true" data-key="judge" spellcheck="false">Your name</div>
+        <p>Test evaluation, thresholds and feature importance.</p></div>
+      <div class="card team-card"><span class="role-tag">PART 4 · THE STORYTELLER</span>
+        <div class="name-slot" contenteditable="true" data-key="storyteller" spellcheck="false">Your name</div>
+        <p>Conclusions, recommendations and the deck.</p></div>
+      <div class="card team-card cta">
+        <span class="role-tag">THE DECK</span>
+        <h3>12 slides · 12 minutes</h3>
+        <p>Presenter View carries everyone's lines in the notes. Slides 1, 3 and 7 reveal on one click, 6 and 8 on two.</p>
+        <a class="btn btn-pink" href="resources/Group9_HRJobChange.pptx" data-cursor="OPEN">Open the PPTX</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-grid">
+    <div>
+      <p class="logo-big">Job&#8209;Change Radar</p>
+      <p class="muted">Group 9 · HR Analytics: Job Change of Data Scientists · a static site companion to the notebook,
+        the deck and the viva prep.</p>
+    </div>
+    <div>
+      <p class="tag lcd">SOURCES</p>
+      <ul class="foot-list">
+        <li><a href="https://www.kaggle.com/datasets/arashnic/hr-analytics-job-change-of-data-scientists" target="_blank" rel="noopener">Dataset on Kaggle</a></li>
+        <li><a href="resources/Group9_HRJobChange.html">Notebook with all outputs</a></li>
+        <li><a href="resources/Group9_HRJobChange.pptx">Presentation</a></li>
+        <li><a href="resources/Group9_Viva_Questions.html">Viva questions</a></li>
+        <li><a href="README.md">Project README</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="tag lcd">FINAL NUMBERS</p>
+      <ul class="foot-list nums">
+        <li>Test ROC-AUC <b>0.808</b></li>
+        <li>Recall <b>0.783</b></li>
+        <li>Precision <b>0.524</b></li>
+        <li>F1 <b>0.628</b></li>
+      </ul>
+    </div>
+  </div>
+  <p class="foot-base">★ Made for one purpose: helping HR start at the top of the list. Never as a verdict on a person. ★</p>
+</footer>
+
+<div class="cursor-badge" id="cursorBadge" aria-hidden="true"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="presentation.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "oof_auc": 0.8056107051518586,
+  "accuracy_threshold": 0.43000000000000005,
+  "oof_accuracy": 0.8014485188568445,
+  "f1_threshold": 0.314,
+  "oof_f1": 0.6370829033367733,
+  "final_iterations": 281
+}
