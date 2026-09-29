@@ -28,7 +28,13 @@
     startTimer();
     if (scenes[i].dataset.scene==='hook') animateDots();
   }
-  function enter(){ body.classList.add('presentation-active'); show(index); shell.focus(); }
+  function refreshTeamNames(){
+    shell.querySelectorAll('.team-pres-name').forEach(el=>{
+      const saved = localStorage.getItem('g9-' + el.dataset.teamKey);
+      el.textContent = saved || 'YOUR NAME';
+    });
+  }
+  function enter(){ refreshTeamNames(); body.classList.add('presentation-active'); show(index); shell.focus(); }
   function exit(){ body.classList.remove('presentation-active'); }
   function next(){ show(index+1); }
   function prev(){ show(index-1); }
