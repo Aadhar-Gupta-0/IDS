@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0d0718">
 <title>Group 9 · Who Is Looking to Change Jobs? — HR Analytics</title>
-<meta name="description" content="Group 9's HR Analytics project: predicting reported job-change intent among 19,158 data-science trainees. Full analysis, models, results and viva prep — Kaggle: Job Change of Data Scientists.">
+<meta name="description" content="Group 9's HR Analytics project: predicting reported job-change intent among 19,158 data-science trainees. Full analysis, models, deployment results and technical deep dive — Kaggle: Job Change of Data Scientists.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Space+Grotesk:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -154,7 +154,7 @@
         <p class="pres-lede">It was: <b class="pres-sun">“Who should a recruiter talk to first?”</b></p>
         <div class="pres-row"><span class="pres-badge">19,158 candidates</span><span class="pres-badge">5-fold validation</span><span class="pres-badge">locked test</span><span class="pres-badge">live deployment demo</span></div>
         <h3 style="font-family:'Bungee';font-size:clamp(28px,4vw,54px);margin:34px 0 0">JOB-CHANGE RADAR · GROUP 9</h3>
-        <p class="pres-note">Press Esc or click below to open the detailed analysis, data dictionary, threshold explorer and Viva bank.</p>
+        <p class="pres-note">Press Esc or click below to open the detailed analysis, data dictionary, threshold explorer and technical Q&A bank.</p>
         <div class="pres-row"><button class="pres-btn" id="exploreBtn">Explore full project</button></div>
       </div>
     </section>
@@ -202,7 +202,7 @@
     <a href="#results">Results</a>
     <a href="#threshold">Threshold</a>
     <a href="#drivers">Drivers</a>
-    <a href="#viva">Viva</a>
+    <a href="#viva">Deep Dive</a>
     <a href="#team">Team</a>
   </nav>
 
@@ -231,9 +231,9 @@
 
       <ul class="hero-stats">
         <li><b class="num">19,158</b><span>labelled trainees</span></li>
-        <li><b class="num">14</b><span>input columns</span></li>
-        <li><b class="num">152</b><span>model features</span></li>
-        <li><b class="num lcdc">0.81</b><span>test ROC-AUC</span></li>
+        <li><b class="num">12</b><span>raw predictors after dropping ID + target</span></li>
+        <li><b class="num">3</b><span>CatBoost models in the deployment ensemble</span></li>
+        <li><b class="num lcdc">0.804</b><span>locked-test ROC-AUC</span></li>
       </ul>
     </div>
 
@@ -714,8 +714,7 @@
       <div>
         <p class="kicker lcd">STOP 08 · PART 4 · CONCLUSIONS</p>
         <h2 class="display">Can HR use the model?<br>Only as decision support.</h2>
-        <p class="lede">Test ROC-AUC <b>0.81</b>, against 0.50 for a coin flip, stable between 0.78 and 0.81 across five random
-          splits. Well enough to rank people — not well enough to decide for them.</p>
+        <p class="lede">The final deployment ensemble reaches locked-test ROC-AUC <b>0.8036</b> and <b>80.19% accuracy</b> at a validation-selected 0.43 threshold. That is useful ranking signal — not enough to decide for a person.</p>
       </div>
       <p class="stop-num" aria-hidden="true">08</p>
     </div>
@@ -789,7 +788,7 @@
     </div>
 
     <div class="grid-3 facts">
-      <div class="card dark"><b class="num lcdc">1 in 2</b><p>flags is a false positive. Some people just like free courses.</p></div>
+      <div class="card dark"><b class="num lcdc">41%</b><p>of deployment-threshold flags are false positives, so a recruiter still reviews every case.</p></div>
       <div class="card dark"><b class="num lcdc">New cohorts</b><p>CatBoost is now the deployment extension; the next gain should come from longitudinal outcomes and external validation, not endless tuning.</p></div>
       <div class="card dark"><b class="num lcdc">Calibrate</b><p>class weighting inflates the probabilities — calibrate first, then cost the cut-off.</p></div>
     </div>
@@ -870,12 +869,12 @@
 </section>
 
 <!-- ══ 12 · VIVA ══ -->
-<section class="stop alt" id="viva" data-sign="VIVA Q&amp;A">
+<section class="stop alt" id="viva" data-sign="TECHNICAL Q&amp;A">
   <div class="wrap">
     <div class="stop-head">
       <div>
-        <p class="kicker lcd">STOP 12 · APPENDIX · VIVA PREP</p>
-        <h2 class="display">65 questions the teacher<br>might ask</h2>
+        <p class="kicker lcd">STOP 12 · APPENDIX · TECHNICAL DEEP DIVE</p>
+        <h2 class="display">65 technical questions<br>the teacher might ask</h2>
         <p class="lede">Every answer was checked against the notebook and the data. Filter by topic, hit a random one, or open
           everything before you practise out loud.</p>
       </div>
@@ -969,16 +968,16 @@
         <li><a href="https://www.kaggle.com/datasets/arashnic/hr-analytics-job-change-of-data-scientists" target="_blank" rel="noopener">Dataset on Kaggle</a></li>
         <li><a href="resources/Group9_HRJobChange.html">Notebook with all outputs</a></li>
         <li><a href="resources/Group9_HRJobChange.pptx">Presentation</a></li>
-        <li><a href="resources/Group9_Viva_Questions.html">Viva questions</a></li>
+        <li><a href="resources/Group9_Viva_Questions.html">Technical Q&amp;A bank</a></li>
         <li><a href="README.md">Project README</a></li>
       </ul>
     </div>
     <div>
-      <p class="tag lcd">FINAL NUMBERS</p>
+      <p class="tag lcd">DEPLOYMENT NUMBERS</p>
       <ul class="foot-list nums">
-        <li>Test ROC-AUC <b>0.808</b></li>
-        <li>Recall <b>0.783</b></li>
-        <li>Precision <b>0.524</b></li>
+        <li>Locked-test ROC-AUC <b>0.8036</b></li>
+        <li>Accuracy @ 0.43 <b>80.19%</b></li>
+        <li>Recall @ 0.43 <b>67.85%</b></li>
         <li>F1 <b>0.628</b></li>
       </ul>
     </div>
