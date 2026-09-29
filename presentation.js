@@ -11,6 +11,14 @@
   let startedAt = null;
   let timerHandle = null;
 
+  const TEAM = {
+    detective: { name: 'Aadhar Gupta', work: 'Managing the team; worked on the model; website making.' },
+    cleaner: { name: 'Kashvi Gupta', work: 'Understanding the business question; data understanding; PPT making.' },
+    trainer: { name: 'Shreshth Behal', work: 'Missing values; data cleaning and the encoding pipeline; training the model.' },
+    judge: { name: 'Ayush Kakkar', work: 'Making the website; model comparison and hyperparameter tuning.' },
+    storyteller: { name: 'Aaryan Prakash', work: 'Initial model setup and GitHub implementation.' }
+  };
+
   function fmtTime(ms){
     const s = Math.max(0, Math.floor(ms/1000));
     return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;
@@ -30,8 +38,13 @@
   }
   function refreshTeamNames(){
     shell.querySelectorAll('.team-pres-name').forEach(el=>{
-      const saved = localStorage.getItem('g9-' + el.dataset.teamKey);
-      el.textContent = saved || 'YOUR NAME';
+      const member = TEAM[el.dataset.teamKey];
+      if (!member) return;
+      el.textContent = member.name;
+      const card = el.closest('.pres-card');
+      const desc = card?.querySelector('p');
+      if (desc) desc.textContent = member.work;
+      localStorage.setItem('g9-' + el.dataset.teamKey, member.name);
     });
   }
   function enter(){ refreshTeamNames(); body.classList.add('presentation-active'); show(index); shell.focus(); }
