@@ -1,15 +1,13 @@
 # Job-Change Radar — Presentation Website + Live Model
 
-This folder is the presentation-ready version of the Group 9 HR Analytics website.
+Group 9 HR Analytics project for predicting reported job-change intent among data-science trainees.
 
-## What changed
+## Project structure
 
-- Default **8-minute Presentation Mode** with 9 keyboard-controlled scenes.
-- Original detailed website retained as **Explore / Viva Mode**.
-- Live `/api/predict` endpoint using the final **3-seed CatBoost ensemble**.
-- Deployment-model metrics are separated from the original classroom benchmark.
-- Presenter HUD shows scene count and elapsed time.
-- Offline fallback is explicitly labelled as a demo fallback and is never presented as a model prediction.
+- **Presentation Mode** — 9-scene, keyboard-controlled 8-minute presentation.
+- **Explore / Technical Deep Dive** — detailed analysis, charts, threshold exploration and supporting explanations.
+- **Live model** — FastAPI endpoint backed by a 3-seed CatBoost ensemble.
+- **Academic benchmark** — the required baseline and taught-model comparison are retained separately from the deployment extension.
 
 ## Run locally
 
@@ -21,44 +19,63 @@ pip install -r requirements.txt
 uvicorn server:app --host 0.0.0.0 --port 8000
 ```
 
-Open `http://localhost:8000`.
+Open `http://127.0.0.1:8000`.
+
+On Windows, `RUN_PRESENTATION.bat` performs the setup/start flow automatically.
 
 ## Presentation controls
 
 - `Right Arrow`, `Space`, `PageDown`: next scene
 - `Left Arrow`, `PageUp`: previous scene
-- `F`: browser fullscreen
+- `F`: fullscreen
 - `D`: jump to live model demo
-- `R`: reset presentation timer
-- `Esc`: exit Presentation Mode into the full project website
-- `P`: re-enter Presentation Mode
+- `R`: reset timer
+- `Esc`: open the full project / technical deep dive
+- `P`: return to Presentation Mode
 
 ## Deployment
 
-Use any Python host that can run FastAPI and CatBoost (Render, Railway, Fly.io, a VM, etc.). Start command:
+This repository is prepared for Render using `render.yaml`.
+
+- Build: `pip install --upgrade pip && pip install -r requirements.txt`
+- Start: `uvicorn server:app --host 0.0.0.0 --port $PORT`
+- Health check: `/api/health`
+- Runtime: Python 3.12
+
+The model weights are committed under `model/`, so no external model download is required at startup.
+
+## Team collaboration
+
+Treat `main` as the stable presentation branch.
+
+Recommended workflow:
 
 ```bash
-uvicorn server:app --host 0.0.0.0 --port $PORT
+git pull origin main
+git checkout -b your-feature-name
+# make and test changes
+git add .
+git commit -m "Describe the change"
+git push -u origin your-feature-name
 ```
 
-The model weights are already in `model/`.
+Open a pull request into `main` and merge only after the local website and `/api/predict` still work.
 
-## Fastest Windows workflow
+Avoid editing the `model/*.cbm` files unless intentionally retraining/replacing the deployment model.
 
-For presentation day, you do **not** need to type terminal commands:
+## Reproducibility
 
-1. Double-click `RUN_PRESENTATION.bat`.
-2. The first run creates `.venv`, installs dependencies and opens the browser.
-3. The local app runs at `http://127.0.0.1:8000`.
-4. Run `VERIFY_PROJECT.bat` before the final rehearsal.
-
-## Reproducibility bundle
-
-The `ml/` folder contains the labelled/unlabelled CSV files and the training/inference scripts used for the enhanced CatBoost model. This is separate from the lightweight live-serving code in `server.py`.
+- `ml/` contains training and inference scripts plus the Kaggle CSV files used for the enhanced model.
+- `model/` contains deployment weights, config and frozen evaluation summaries.
+- `resources/` contains the notebook, rendered notebook HTML, deck, viva material and course guideline PDF.
 
 ## Presenter material
 
-- `docs/8_MINUTE_SPEAKER_SCRIPT.md` — exact presentation narration and timing.
-- `docs/VIVA_CHEATSHEET.md` — core technical questions and safe answers.
-- `docs/PRESENTATION_DAY_CHECKLIST.md` — final-day operating checklist.
-- `docs/DEPLOYMENT_GUIDE.md` — prepared online-deployment workflow.
+- `docs/8_MINUTE_SPEAKER_SCRIPT.md`
+- `docs/VIVA_CHEATSHEET.md`
+- `docs/PRESENTATION_DAY_CHECKLIST.md`
+- `docs/DEPLOYMENT_GUIDE.md`
+
+## Local presentation recommendation
+
+Even after the public deployment is live, use the local `127.0.0.1:8000` version for the classroom presentation so the model demo does not depend on venue Wi-Fi.
