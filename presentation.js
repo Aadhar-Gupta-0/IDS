@@ -3,6 +3,21 @@
   const body = document.body;
   const shell = document.getElementById('presentationShell');
   if (!shell) return;
+
+  // Presentation-only polish is kept separate from model logic.
+  if (!document.querySelector('link[href="presentation-polish.css"]')) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = 'presentation-polish.css';
+    document.head.appendChild(link);
+  }
+  if (!document.querySelector('script[src="presentation-polish.js"]')) {
+    const script = document.createElement('script');
+    script.src = 'presentation-polish.js';
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+
   const scenes = [...shell.querySelectorAll('.pres-scene')];
   const progress = document.getElementById('presProgressFill');
   const sceneLabel = document.getElementById('presSceneLabel');
