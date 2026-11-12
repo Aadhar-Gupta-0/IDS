@@ -39,6 +39,7 @@ document.addEventListener("click", e => {
 /* ── starfield ──────────────────────────────────────────────── */
 const canvas = $("#stars"), ctx = canvas.getContext("2d");
 let stars = [], W = 0, H = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? false;
 function sizeStars() {
   W = canvas.clientWidth; H = canvas.clientHeight;
   canvas.width = W * dpr; canvas.height = H * dpr;
@@ -60,10 +61,10 @@ function drawStars() {
     ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2); ctx.fill();
   }
   ctx.globalAlpha = 1;
-  requestAnimationFrame(drawStars);
+  if (!reduceMotion) requestAnimationFrame(drawStars);
 }
 sizeStars(); drawStars();
-addEventListener("resize", () => { sizeStars(); renderAllCharts(); }, { passive: true });
+addEventListener("resize", () => { sizeStars(); if (reduceMotion) drawStars(); renderAllCharts(); }, { passive: true });
 
 /* ── header: progress, stuck state, scroll-spy, LCD sign ────── */
 const fill = $("#scrollFill"), topbar = $("#topbar"), dest = $("#destSign"), nav = $("#nav");
